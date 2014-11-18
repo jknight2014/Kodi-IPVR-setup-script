@@ -95,9 +95,9 @@ sudo mkdir /home/$UNAME/IPVR
 sudo chown -R $UNAME:$UNAME /home/$UNAME/IPVR
 sudo chmod -R 775 /home/$UNAME/IPVR
 	whiptail --title "Knight IPVR" --infobox "Adding repositories" 8 78
-	sudo add-apt-repository -y ppa:jcfp/ppa  > /dev/null 2>&1
-	sudo add-apt-repository -y ppa:directhex/monoxide > /dev/null 2>&1
-	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC > /dev/null 2>&1
+	sudo add-apt-repository -y ppa:jcfp/ppa  >> /home/$UNAME/IPVR-install.log
+	sudo add-apt-repository -y ppa:directhex/monoxide >> /home/$UNAME/IPVR-install.log
+	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC >> /home/$UNAME/IPVR-install.log
 	echo "deb http://update.nzbdrone.com/repos/apt/debian master main" | sudo tee -a /etc/apt/sources.list
 
 	whiptail --title "Knight IPVR" --infobox "Updating Packages" 8 78
@@ -106,14 +106,14 @@ if [[ "$SAB" == "1" ]]
 then
 
 	whiptail --title "SABnzbd" --infobox "Installing SABnzbd" 8 78
-	sudo apt-get -qq install sabnzbdplus  > /dev/null 2>&1
+	sudo apt-get -qq install sabnzbdplus  >> /home/$UNAME/IPVR-install.log
 
 	whiptail --title "SABnzbd" --infobox "Stopping SABnzbd" 8 78
 	sleep 2
 	sudo killall sabnzbd* >/dev/null 2>&1
 
 	whiptail --title "SABnzbd" --infobox "Removing Standard init scripts" 8 78
-	sudo update-rc.d sabnzbdplus remove > /dev/null 2>&1
+	sudo update-rc.d sabnzbdplus remove >> /home/$UNAME/IPVR-install.log
 
 	whiptail --title "SABnzbd" --infobox "Configuring SABnzbd" 8 78
 	API=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
@@ -177,7 +177,7 @@ if [[ "$SONARR" == "1" ]]
 then
 
 	whiptail --title "SONARR" --infobox "Installing mono..." 8 78
-	sudo apt-get -qq install mono-complete  > /dev/null 2>&1
+	sudo apt-get -qq install mono-complete  >> /home/$UNAME/IPVR-install.log
 
 	whiptail --title "SONARR" --infobox "Checking for previous versions of NZBget/Sonarr..." 8 78
 	sleep 2
@@ -186,7 +186,7 @@ then
 
 	whiptail --title "SONARR" --infobox "Downloading latest Sonarr..." 8 78
 	sleep 2
-	sudo apt-get -qq install nzbdrone > /dev/null 2>&1
+	sudo apt-get -qq install nzbdrone >> /home/$UNAME/IPVR-install.log
 
 	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = "$UNAME" WHERE Key = chownuser"
 	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = "$UNAME" WHERE Key = chowngroup"
@@ -233,7 +233,7 @@ if [[ "$CP" == "1" ]]
 then
 
 	whiptail --title "COUCHPOTATO" --infobox "Installing Git and Python" 8 78  
-	sudo apt-get -qq install git-core python  > /dev/null 2>&1
+	sudo apt-get -qq install git-core python  >> /home/$UNAME/IPVR-install.log
 
 
 	whiptail --title "COUCHPOTATO" --infobox "Killing and version of couchpotato currently running" 8 78  
@@ -243,9 +243,9 @@ then
 
 	whiptail --title "COUCHPOTATO" --infobox "Downloading the latest version of CouchPotato" 8 78  
 	sleep 2
-	mkdir /home/$UNAME/IPVR > /dev/null 2>&1
-	cd /home/$UNAME/IPVR > /dev/null 2>&1
-	git clone git://github.com/RuudBurger/CouchPotatoServer.git .couchpotato > /dev/null 2>&1
+	mkdir /home/$UNAME/IPVR >> /home/$UNAME/IPVR-install.log
+	cd /home/$UNAME/IPVR >> /home/$UNAME/IPVR-install.log
+	git clone git://github.com/RuudBurger/CouchPotatoServer.git .couchpotato >> /home/$UNAME/IPVR-install.log
 
 	whiptail --title "COUCHPOTATO" --infobox "Installing upstart configurations" 8 78  
 	sleep 2
