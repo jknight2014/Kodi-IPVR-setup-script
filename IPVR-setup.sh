@@ -94,7 +94,7 @@ sudo mkdir /home/$UNAME/IPVR
 sudo chown -R $UNAME:$UNAME /home/$UNAME/IPVR
 sudo chmod -R 775 /home/$UNAME/IPVR
 
-if ($SAB=1) then
+if [[ "$SAB" == "1" ]] then
 	whiptail --title "SABnzbd" --msgbox "Adding SABnzbd repository" 8 78
 	sudo add-apt-repository ppa:jcfp/ppa
 	 
@@ -171,7 +171,7 @@ if ($SAB=1) then
 	whiptail --msgbox "SABnzbd has finished installing. Continuing with Sonarr install." 12 78 --title "FINISHED"
 fi
 
-if ($SONARR=1) then
+if [[ "$SONARR" == "1" ]] then
 	whiptail --title "SONARR" --msgbox "Adding Repository..." 8 78
 	sudo add-apt-repository ppa:directhex/monoxide
 
@@ -234,7 +234,7 @@ if ($SONARR=1) then
 
 	whiptail --msgbox "Sonarr has finished installing. Continuing with CouchPotato install." 12 78 --title "FINISHED"
 fi
-if ($CP=1) then
+if [[ "$CP" == "1" ]] then
 	whiptail --title "COUCHPOTATO" --msgbox "Updating Apt" 8 78  
 	sudo apt-get update
 
