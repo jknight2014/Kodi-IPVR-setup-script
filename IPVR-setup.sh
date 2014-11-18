@@ -121,7 +121,7 @@ then
 	sudo echo 'start on runlevel [2345]' >> /etc/init/sabnzbd.conf
 	sudo echo 'stop on runlevel [016]' >> /etc/init/sabnzbd.conf
 	sudo echo 'respawn limit 10 10' >> /etc/init/sabnzbd.conf
-	sudo echo "exec sabnzbdplus -f /home/"$UNAME"/IPVR/.sabnzbd/config.ini -s 0.0.0.0:8085 -b 0 --permissions 775" >> /etc/init/sabnzbd.conf
+	sudo echo "exec sabnzbdplus -f /home/"$UNAME"/IPVR/.sabnzbd/config.ini -s :8085" >> /etc/init/sabnzbd.conf
 
 	sudo start sabnzbd >/dev/null 2>&1
 	sleep 5
@@ -176,7 +176,7 @@ fi
 if [[ "$SONARR" == "1" ]] 
 then
 
-	dialog --title "SONARR" --infobox "Installing mono..." 6 50
+	dialog --title "SONARR" --infobox "Installing mono \ This may take awhile. Please be paient." 6 50
 	sudo apt-get -qq install mono-complete  >/dev/null 2>&1
 
 	dialog --title "SONARR" --infobox "Checking for previous versions of NZBget/Sonarr..." 6 50
@@ -868,7 +868,12 @@ then
 	sudo echo "run_on_launch = 0" >> /home/$UNAME/IPVR/.couchpotato/settings.conf 
 	sudo echo "search_on_add = 1" >> /home/$UNAME/IPVR/.couchpotato/settings.conf 
 	sudo echo "" >> /home/$UNAME/IPVR/.couchpotato/settings.conf 
+	
 fi
+
+dialog --title "Permissions" --infobox "Fixing Ownership and Permissions." 5 50
+sudo chmod -R 775 /home/$UNAME/IPVR/
+sudo chown -R 775 /home/$UNAME/IPVR/
 
 dialog --title "FINISHED" --msgbox "All done.  Your IPVR should start within 10-20 seconds If not you can start it using (sudo start sabnzbd sonarr couchpotato) command.  Then open http://localhost:#PORT in your browser. Replace #PORT with the port of the program you want to access. Couchpotato = 5050 Sonarr = 8989 SABnzbd = 8085. Replace localhost with your server IP for remote systems." 15 78
 
@@ -876,3 +881,69 @@ dialog --title "FINISHED" --msgbox "All done.  Your IPVR should start within 10-
 sudo start sabnzbd
 sudo start sonarr
 sudo start couchpotato
+
+if (dialog --title "Knight IPVR" --yesno "Would you like to enable reverse proxies? \ This will allow you to access your programs at http://hostname/script instead of http://IP:PORT/script. It will also allow you to use SSL and access your apps from outside your network by only forwarding one port." 12 78) then
+    echo
+else
+    dialog --title "ABORT" --infobox "All Done then!" 6 50
+	exit 0
+fi
+
+dialog --title "Apache" --infobox "Installing Apache" 6 50
+sudo apt-get -qq install apache2 > /dev/null 2>&1
+
+sudo a2enmod proxy > /dev/null 2>&1
+sudo a2enmod proxy_http > /dev/null 2>&1
+sudo a2enmod rewrite > /dev/null 2>&1
+sudo a2enmod ssl > /dev/null 2>&1
+sudo openssl req -x509 -nodes -days 7200 -newkey rsa:2048 -subj "/C=US/ST=NONE/L=NONE/O=Private/CN=Private" -keyout /etc/ssl/private/apache.key -out /etc/ssl/certs/apache.crt
+echo "" > /etc/apache2/sites-available/default
+echo "<VirtualHost *:80>" > /etc/apache2/sites-available/default 
+echo "RewriteEngine on" >> /etc/apache2/sites-available/default 
+echo "ReWriteCond %{SERVER_PORT} !^443$" >> /etc/apache2/sites-available/default 
+echo "RewriteRule ^/(.*) https://%{HTTP_HOST}/$1 [NC,R,L]" >> /etc/apache2/sites-available/default 
+echo "</VirtualHost>" >> /etc/apache2/sites-available/default 
+echo "" >> /etc/apache2/sites-available/default 
+echo "<VirtualHost *:443>" >> /etc/apache2/sites-available/default 
+echo "ServerAdmin admin@domain.com" >> /etc/apache2/sites-available/default 
+echo "ServerName localhost" >> /etc/apache2/sites-available/default 
+echo "" >> /etc/apache2/sites-available/default 
+echo "ProxyRequests Off" >> /etc/apache2/sites-available/default 
+echo "ProxyPreserveHost On" >> /etc/apache2/sites-available/default 
+echo "" >> /etc/apache2/sites-available/default 
+echo "<Proxy *>" >> /etc/apache2/sites-available/default 
+echo "Order deny,allow" >> /etc/apache2/sites-available/default 
+echo "Allow from all" >> /etc/apache2/sites-available/default 
+echo "</Proxy>" >> /etc/apache2/sites-available/default 
+echo "" >> /etc/apache2/sites-available/default 
+echo "<Location />" >> /etc/apache2/sites-available/default 
+echo "Order allow,deny" >> /etc/apache2/sites-available/default 
+echo "Allow from all" >> /etc/apache2/sites-available/default 
+echo "</Location>" >> /etc/apache2/sites-available/default 
+echo "" >> /etc/apache2/sites-available/default 
+echo "SSLEngine On" >> /etc/apache2/sites-available/default 
+echo "SSLProxyEngine On" >> /etc/apache2/sites-available/default 
+echo "SSLCertificateFile /etc/ssl/certs/apache.crt" >> /etc/apache2/sites-available/default 
+echo "SSLCertificateKeyFile /etc/ssl/private/apache.key" >> /etc/apache2/sites-available/default 
+echo "" >> /etc/apache2/sites-available/default 
+echo "ProxyPass /sabnzbd http://localhost:8085/sabnzbd" >> /etc/apache2/sites-available/default 
+echo "ProxyPassReverse /sabnzbd http://localhost:8085/sabnzbd" >> /etc/apache2/sites-available/default 
+echo "" >> /etc/apache2/sites-available/default 
+echo "ProxyPass /sonarr http://localhost:8989/sonarr" >> /etc/apache2/sites-available/default 
+echo "ProxyPassReverse /sonarr http://localhost:8989/sonarr" >> /etc/apache2/sites-available/default 
+echo "" >> /etc/apache2/sites-available/default 
+echo "ProxyPass /couchpotato http://localhost:5050/couchpotato" >> /etc/apache2/sites-available/default 
+echo "ProxyPassReverse /couchpotato http://localhost:5050/couchpotato" >> /etc/apache2/sites-available/default 
+echo "" >> /etc/apache2/sites-available/default 
+echo "RewriteEngine on" >> /etc/apache2/sites-available/default 
+echo "RewriteRule ^/xbmc$ /xbmc/ [R]" >> /etc/apache2/sites-available/default 
+echo "" >> /etc/apache2/sites-available/default 
+echo "ProxyPass /xbmc http://localhost:8080" >> /etc/apache2/sites-available/default 
+echo "ProxyPassReverse /xbmc http://localhost:8080" >> /etc/apache2/sites-available/default 
+echo "" >> /etc/apache2/sites-available/default 
+echo "ErrorLog /var/log/apache2/error.log" >> /etc/apache2/sites-available/default 
+echo "LogLevel warn" >> /etc/apache2/sites-available/default 
+echo "</VirtualHost>" >> /etc/apache2/sites-available/default
+sudo service apache2 restart 
+
+dialog --title "FINISHED" --msgbox "Apache rewrite installed. Use http://HOST/sonarr to access sonarr, same for couchpotato and sabnzbd" 5 50
