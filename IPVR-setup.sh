@@ -12,7 +12,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # DO NOT EDIT ANYTHING UNLESS YOU KNOW WHAT YOU ARE DOING.
-if (whiptail --title "Knight IPVR" --yesno "Version: 0.1 (November 16, 2014) Knight IPVR installation will start soon. Please read the following carefully. The script has been confirmed to work on Ubuntu 14.04. 2. While several testing runs identified no known issues, the author cannot be held accountable for any problems that might occur due to the script. 3. If you did not run this script with sudo, you maybe asked for your root password during installation." 8 78) then
+if (whiptail --title "Knight IPVR" --yesno "Version: 0.1 (November 16, 2014) Knight IPVR installation will start soon. Please read the following carefully. The script has been confirmed to work on Ubuntu 14.04. 2. While several testing runs identified no known issues, the author cannot be held accountable for any problems that might occur due to the script. 3. If you did not run this script with sudo, you maybe asked for your root password during installation." 12 78) then
     echo
 else
     whiptail --title "ABORT" --msgbox "You have aborted. Please try again." 8 78
@@ -27,8 +27,8 @@ if [ ! -d "/home/$UNAME" ]; then
 fi
 
 USERNAME=$(whiptail --inputbox "Enter the username you want to use to log into your scripts" 10 50 --title "Script Username" 3>&1 1>&2 2>&3)
-PASSWORD=$(whiptail --inputbox "Enter the Password you want to use to log into your scripts" 10 50 --title "Script Password" 3>&1 1>&2 2>&3)
-DIR=$(whiptail --passwordbox "Enter the  directory where you would like downloads saved. (/home/john would save complete downloads in /home/john/Downloads/Complete" 10 50 /home/$UNAME --title "Storage Directory" 3>&1 1>&2 2>&3)
+PASSWORD=$(whiptail --passwordbox "Enter the Password you want to use to log into your scripts" 10 50 --title "Script Password" 3>&1 1>&2 2>&3)
+DIR=$(whiptail --inputbox "Enter the  directory where you would like downloads saved. (/home/john would save complete downloads in /home/john/Downloads/Complete" 10 50 /home/$UNAME --title "Storage Directory" 3>&1 1>&2 2>&3)
 API=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
 USENETUSR=$(whiptail --inputbox "Please enter your Usenet servers Username" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
 USENETPASS=$(whiptail --inputbox "Please enter your Usenet servers Password" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
