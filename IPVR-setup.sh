@@ -12,6 +12,10 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # DO NOT EDIT ANYTHING UNLESS YOU KNOW WHAT YOU ARE DOING.
+if [ "$(id -u)" != "0" ]; then
+	echo "Sorry, you must run this script as root. Add sudo to the beginning of your start command(sudo bash SCRIPT)"
+	exit 1
+fi
 echo "starting installer"
 sudo apt-get -qq install dialog
 
