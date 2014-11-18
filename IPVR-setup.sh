@@ -15,7 +15,7 @@
 if (whiptail --title "Knight IPVR" --yesno "Version: 0.1 (November 16, 2014) Knight IPVR installation will start soon. Please read the following carefully. The script has been confirmed to work on Ubuntu 14.04. 2. While several testing runs identified no known issues, the author cannot be held accountable for any problems that might occur due to the script. 3. If you did not run this script with sudo, you maybe asked for your root password during installation." 12 78) then
     echo
 else
-    whiptail --title "ABORT" --msgbox "You have aborted. Please try again." 8 78
+    whiptail --title "ABORT" --infobox "You have aborted. Please try again." 8 78
 	exit 0
 fi
 
@@ -94,26 +94,27 @@ sudo mkdir /home/$UNAME/IPVR
 sudo chown -R $UNAME:$UNAME /home/$UNAME/IPVR
 sudo chmod -R 775 /home/$UNAME/IPVR
 
-if [[ "$SAB" == "1" ]] then
-	whiptail --title "SABnzbd" --msgbox "Adding SABnzbd repository" 8 78
+if [[ "$SAB" == "1" ]] 
+then
+	whiptail --title "SABnzbd" --infobox "Adding SABnzbd repository" 8 78
 	sudo add-apt-repository ppa:jcfp/ppa
 	 
 
-	whiptail --title "SABnzbd" --msgbox "Updating Packages" 8 78
+	whiptail --title "SABnzbd" --infobox "Updating Packages" 8 78
 	sudo apt-get update
 
 
-	whiptail --title "SABnzbd" --msgbox "Installing SABnzbd" 8 78
+	whiptail --title "SABnzbd" --infobox "Installing SABnzbd" 8 78
 	sudo apt-get install sabnzbdplus
 
-	whiptail --title "SABnzbd" --msgbox "Stopping SABnzbd" 8 78
+	whiptail --title "SABnzbd" --infobox "Stopping SABnzbd" 8 78
 	sleep 2
 	sudo killall sabnzbd* >/dev/null 2>&1
 
-	whiptail --title "SABnzbd" --msgbox "Removing Standard init scripts" 8 78
+	whiptail --title "SABnzbd" --infobox "Removing Standard init scripts" 8 78
 	update-rc.d sabnzbdplus remove
 
-	whiptail --title "SABnzbd" --msgbox "Configuring SABnzbd" 8 78
+	whiptail --title "SABnzbd" --infobox "Configuring SABnzbd" 8 78
 	API=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
 	echo "username = "$USER >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	echo "password = "$PASS >> /home/$UNAME/IPVR/.sabnzbd/config.ini
@@ -158,7 +159,7 @@ if [[ "$SAB" == "1" ]] then
 	echo "dir = "$DIR"/Downloads/Complete/Movies" >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 
 
-	whiptail --title "SABnzbd" --msgbox "Adding SABnzbd upstart config" 8 78
+	whiptail --title "SABnzbd" --infobox "Adding SABnzbd upstart config" 8 78
 	sleep 2
 	echo 'description "Upstart Script to run sabnzbd as a service on Ubuntu/Debian based systems"' >> /etc/init/sabnzbd.conf
 	echo "setuid "$UNAME >> /etc/init/sabnzbd.conf
@@ -168,25 +169,26 @@ if [[ "$SAB" == "1" ]] then
 	echo 'respawn limit 10 10' >> /etc/init/sabnzbd.conf
 	echo "exec sabnzbdplus -f /home/"$UNAME"/IPVR/.sabnzbd/config.ini -s 0.0.0.0:8085 -b 0 --permissions 775 "$PARM >> /etc/init/sabnzbd.conf
 
-	whiptail --msgbox "SABnzbd has finished installing. Continuing with Sonarr install." 12 78 --title "FINISHED"
+	whiptail --infobox "SABnzbd has finished installing. Continuing with Sonarr install." 12 78 --title "FINISHED"
 fi
 
-if [[ "$SONARR" == "1" ]] then
-	whiptail --title "SONARR" --msgbox "Adding Repository..." 8 78
+if [[ "$SONARR" == "1" ]] 
+then
+	whiptail --title "SONARR" --infobox "Adding Repository..." 8 78
 	sudo add-apt-repository ppa:directhex/monoxide
 
-	whiptail --title "SONARR" --msgbox "Updating Packages..." 8 78
+	whiptail --title "SONARR" --infobox "Updating Packages..." 8 78
 	sudo apt-get update
 
-	whiptail --title "SONARR" --msgbox "Installing mono..." 8 78
+	whiptail --title "SONARR" --infobox "Installing mono..." 8 78
 	sudo apt-get -y install mono-complete
 
-	whiptail --title "SONARR" --msgbox "Checking for previous versions of NZBget/Sonarr..." 8 78
+	whiptail --title "SONARR" --infobox "Checking for previous versions of NZBget/Sonarr..." 8 78
 	sleep 2
 	sudo killall sonarr* >/dev/null 2>&1
 	sudo killall nzbget* >/dev/null 2>&1
 
-	whiptail --title "SONARR" --msgbox "Downloading latest Sonarr..." 8 78
+	whiptail --title "SONARR" --infobox "Downloading latest Sonarr..." 8 78
 	sleep 2
 	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC
 	echo "deb http://update.nzbdrone.com/repos/apt/debian master main" | sudo tee -a /etc/apt/sources.list
@@ -220,7 +222,7 @@ if [[ "$SONARR" == "1" ]] then
 	echo "  <UpdateAutomatically>True</UpdateAutomatically>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
 	echo "</Config>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
 
-	whiptail --title "SONARR" --msgbox "Creating new default and init scripts..." 8 78
+	whiptail --title "SONARR" --infobox "Creating new default and init scripts..." 8 78
 	sleep 2
 	echo 'description "Upstart Script to run sonarr as a service on Ubuntu/Debian based systems"' >> /etc/init/sonarr.conf
 	echo "setuid "$UNAME >> /etc/init/sonarr.conf
@@ -232,29 +234,30 @@ if [[ "$SONARR" == "1" ]] then
 	echo 'exec mono $DIR/NzbDrone.exe' >> /etc/init/sonarr.conf
 	 
 
-	whiptail --msgbox "Sonarr has finished installing. Continuing with CouchPotato install." 12 78 --title "FINISHED"
+	whiptail --infobox "Sonarr has finished installing. Continuing with CouchPotato install." 12 78 --title "FINISHED"
 fi
-if [[ "$CP" == "1" ]] then
-	whiptail --title "COUCHPOTATO" --msgbox "Updating Apt" 8 78  
+if [[ "$CP" == "1" ]] 
+then
+	whiptail --title "COUCHPOTATO" --infobox "Updating Apt" 8 78  
 	sudo apt-get update
 
 
-	whiptail --title "COUCHPOTATO" --msgbox "Installing Git and Python" 8 78  
+	whiptail --title "COUCHPOTATO" --infobox "Installing Git and Python" 8 78  
 	sudo apt-get install git-core python
 
 
-	whiptail --title "COUCHPOTATO" --msgbox "Killing and version of couchpotato currently running" 8 78  
+	whiptail --title "COUCHPOTATO" --infobox "Killing and version of couchpotato currently running" 8 78  
 	sleep 2
 	sudo killall couchpotato* >/dev/null 2>&1
 
 
-	whiptail --title "COUCHPOTATO" --msgbox "Downloading the latest version of CouchPotato" 8 78  
+	whiptail --title "COUCHPOTATO" --infobox "Downloading the latest version of CouchPotato" 8 78  
 	sleep 2
 	mkdir /home/$UNAME/IPVR
 	cd /home/$UNAME/IPVR
 	git clone git://github.com/RuudBurger/CouchPotatoServer.git .couchpotato
 
-	whiptail --title "COUCHPOTATO" --msgbox "Installing upstart configurations" 8 78  
+	whiptail --title "COUCHPOTATO" --infobox "Installing upstart configurations" 8 78  
 	sleep 2
 	echo 'description "Upstart Script to run couchpotato as a service on Ubuntu/Debian based systems"' >> /etc/init/couchpotato.conf
 	echo "setuid "$UNAME >> /etc/init/couchpotato.conf
