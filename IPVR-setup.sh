@@ -17,12 +17,12 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 fi
 echo "starting installer"
-sudo apt-get -qq install dialog
+sudo apt-get -qq install dialog >/dev/null 2>&1
 
 if (dialog --title "Knight IPVR" --yesno "Version: 0.1 (November 16, 2014) Knight IPVR installation will start soon. Please read the following carefully. The script has been confirmed to work on Ubuntu 14.04. 2. While several testing runs identified no known issues, the author cannot be held accountable for any problems that might occur due to the script. 3. If you did not run this script with sudo, you maybe asked for your root password during installation." 12 78) then
-    sudo echo
+    echo
 else
-    dialog --title "ABORT" --infobox "You have aborted. Please try again." 8 78
+    dialog --title "ABORT" --infobox "You have aborted. Please try again." 6 50
 	exit 0
 fi
 
@@ -49,7 +49,7 @@ else
     USENETSSL=0
 fi
 
-INDEXERHOST=$(dialog --title "Usenet Indexer" --inputbox "Please enter your Newsnab powered Indexers hostname" 10 5 3>&1 1>&2 2>&3)
+INDEXERHOST=$(dialog --title "Usenet Indexer" --inputbox "Please enter your Newsnab powered Indexers hostname" 10 50 3>&1 1>&2 2>&3)
 INDEXERAPI=$(dialog --title "Usenet Indexer" --inputbox "Please enter your Newsnab powered Indexers API key" 10 50 3>&1 1>&2 2>&3)
 INDEXERNAME=$(dialog --title "Usenet Indexer" --inputbox "Please enter a name for your Newsnab powered Indexer (This can be anything)" 10 50 3>&1 1>&2 2>&3)
 
@@ -74,7 +74,7 @@ SONARR=1
 fi
 
 
-dialog --title "Knight IPVR" --infobox "Setting things up" 8 78
+dialog --title "Knight IPVR" --infobox "Setting things up" 6 50
 
 sudo mkdir $DIR/Movies
 sudo mkdir $DIR/TVShows
@@ -93,27 +93,27 @@ sudo mkdir /home/$UNAME/IPVR
 sudo mkdir /home/$UNAME/IPVR/.sabnzbd
 sudo chown -R $UNAME:$UNAME /home/$UNAME/IPVR
 sudo chmod -R 775 /home/$UNAME/IPVR
-	dialog --title "Knight IPVR" --infobox "Adding repositories" 8 78
+	dialog --title "Knight IPVR" --infobox "Adding repositories" 6 50
 	sudo add-apt-repository -y ppa:jcfp/ppa 
 	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC
 	sudo echo "deb http://update.nzbdrone.com/repos/apt/debian master main" | sudo tee -a /etc/apt/sources.list
 
-	dialog --title "Knight IPVR" --infobox "Updating Packages" 8 78
-	sudo apt-get -qq update
+	dialog --title "Knight IPVR" --infobox "Updating Packages" 6 50
+	sudo apt-get -qq update >/dev/null 2>&1
 if [[ "$SAB" == "1" ]] 
 then
 
-	dialog --title "SABnzbd" --infobox "Installing SABnzbd" 8 78
-	sudo apt-get -qq install sabnzbdplus 
+	dialog --title "SABnzbd" --infobox "Installing SABnzbd" 6 50
+	sudo apt-get -qq install sabnzbdplus >/dev/null 2>&1
 
-	dialog --title "SABnzbd" --infobox "Stopping SABnzbd" 8 78
+	dialog --title "SABnzbd" --infobox "Stopping SABnzbd" 6 50
 	sleep 2
 	sudo killall sabnzbd* >/dev/null 2>&1
 
-	dialog --title "SABnzbd" --infobox "Removing Standard init scripts" 8 78
-	sudo update-rc.d -f sabnzbdplus remove
+	dialog --title "SABnzbd" --infobox "Removing Standard init scripts" 6 50
+	sudo update-rc.d -f sabnzbdplus remove  >/dev/null 2>&1
 
-	dialog --title "SABnzbd" --infobox "Adding SABnzbd upstart config" 8 78
+	dialog --title "SABnzbd" --infobox "Adding SABnzbd upstart config" 6 50
 	sleep 2
 	sudo echo 'description "Upstart Script to run sabnzbd as a service on Ubuntu/Debian based systems"' > /etc/init/sabnzbd.conf
 	sudo echo "setuid "$UNAME >> /etc/init/sabnzbd.conf
@@ -123,12 +123,11 @@ then
 	sudo echo 'respawn limit 10 10' >> /etc/init/sabnzbd.conf
 	sudo echo "exec sabnzbdplus -f /home/"$UNAME"/IPVR/.sabnzbd/config.ini -s 0.0.0.0:8085 -b 0 --permissions 775" >> /etc/init/sabnzbd.conf
 
-	sudo start sabnzbd
+	sudo start sabnzbd >/dev/null 2>&1
 	sleep 5
-	sudo stop sabnzbd
+	sudo stop sabnzbd >/dev/null 2>&1
 	
-	dialog --title "SABnzbd" --infobox "Configuring SABnzbd" 8 78
-	API=$(date +%s | sha256sum | base64 | head -c 32 ; sudo echo)
+	dialog --title "SABnzbd" --infobox "Configuring SABnzbd" 6 50
 	sudo echo "username = "$USERNAME > /home/$UNAME/IPVR/.sabnzbd/config.ini
 	sudo echo "password = "$PASSWORD >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	sudo echo "api_key = "$API >> /home/$UNAME/IPVR/.sabnzbd/config.ini
@@ -171,25 +170,25 @@ then
 	sudo echo 'newzbin = ""' >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	sudo echo "dir = "$DIR"/Downloads/Complete/Movies" >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 
-	dialog --infobox "SABnzbd has finished installing. Continuing with Sonarr install." 12 78
+	dialog --infobox "SABnzbd has finished installing. Continuing with Sonarr install." 6 50
 fi
 
 if [[ "$SONARR" == "1" ]] 
 then
 
-	dialog --title "SONARR" --infobox "Installing mono..." 8 78
-	sudo apt-get -qq install mono-complete 
+	dialog --title "SONARR" --infobox "Installing mono..." 6 50
+	sudo apt-get -qq install mono-complete  >/dev/null 2>&1
 
-	dialog --title "SONARR" --infobox "Checking for previous versions of NZBget/Sonarr..." 8 78
+	dialog --title "SONARR" --infobox "Checking for previous versions of NZBget/Sonarr..." 6 50
 	sleep 2
 	sudo killall sonarr* >/dev/null 2>&1
 	sudo killall nzbget* >/dev/null 2>&1
 
-	dialog --title "SONARR" --infobox "Downloading latest Sonarr..." 8 78
+	dialog --title "SONARR" --infobox "Downloading latest Sonarr..." 6 50
 	sleep 2
-	sudo apt-get -qq install nzbdrone
+	sudo apt-get -qq install nzbdrone >/dev/null 2>&1
 	
-	dialog --title "SONARR" --infobox "Creating new default and init scripts..." 8 78
+	dialog --title "SONARR" --infobox "Creating new default and init scripts..." 6 50
 	sleep 2
 	sudo echo 'description "Upstart Script to run sonarr as a service on Ubuntu/Debian based systems"' > /etc/init/sonarr.conf
 	sudo echo "setuid "$UNAME >> /etc/init/sonarr.conf
@@ -200,8 +199,18 @@ then
 	sudo echo 'respawn limit 10 10' >> /etc/init/sonarr.conf
 	sudo echo 'exec mono $DIR/NzbDrone.exe' >> /etc/init/sonarr.conf
 	 
-	sudo start sonarr
-	sudo stop sonarr
+	sudo start sonarr >/dev/null 2>&1
+	
+	while [ ! -f /home/$UNAME/.config/NzbDrone/config.xml ]
+do
+  sleep 2
+done
+
+	while [ ! -f /home/$UNAME/.config/NzbDrone/nzbdrone.db ]
+do
+  sleep 2
+done
+	sudo stop sonarr >/dev/null 2>&1
 
 	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = '"$UNAME"' WHERE Key = 'chownuser'"
 	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = '"$UNAME"' WHERE Key = 'chowngroup'"
@@ -229,27 +238,25 @@ then
 	sudo echo "  <UpdateAutomatically>True</UpdateAutomatically>" >> /home/$UNAME/.config/NzbDrone/config.xml 
 	sudo echo "</Config>" >> /home/$UNAME/.config/NzbDrone/config.xml 
 
-	dialog --infobox "Sonarr has finished installing. Continuing with CouchPotato install." 12 78 --title "FINISHED"
+	dialog --title "FINISHED" --infobox "Sonarr has finished installing. Continuing with CouchPotato install." 6 50
 fi
 if [[ "$CP" == "1" ]] 
 then
 
-	dialog --title "COUCHPOTATO" --infobox "Installing Git and Python" 8 78  
-	sudo apt-get -qq install git-core python 
+	dialog --title "COUCHPOTATO" --infobox "Installing Git and Python" 6 50  
+	sudo apt-get -qq install git-core python >/dev/null 2>&1
 
 
-	dialog --title "COUCHPOTATO" --infobox "Killing and version of couchpotato currently running" 8 78  
+	dialog --title "COUCHPOTATO" --infobox "Killing and version of couchpotato currently running" 6 50  
 	sleep 2
 	sudo killall couchpotato* >/dev/null 2>&1
 
 
-	dialog --title "COUCHPOTATO" --infobox "Downloading the latest version of CouchPotato" 8 78  
+	dialog --title "COUCHPOTATO" --infobox "Downloading the latest version of CouchPotato" 6 50  
 	sleep 2
-	mkdir /home/$UNAME/IPVR
-	cd /home/$UNAME/IPVR
-	git clone git://github.com/RuudBurger/CouchPotatoServer.git .couchpotato
+	git clone git://github.com/RuudBurger/CouchPotatoServer.git /home/$UNAME/IPVR/.couchpotato >/dev/null 2>&1
 
-	dialog --title "COUCHPOTATO" --infobox "Installing upstart configurations" 8 78  
+	dialog --title "COUCHPOTATO" --infobox "Installing upstart configurations" 6 50  
 	sleep 2
 	sudo echo 'description "Upstart Script to run couchpotato as a service on Ubuntu/Debian based systems"' > /etc/init/couchpotato.conf
 	sudo echo "setuid "$UNAME >> /etc/init/couchpotato.conf
@@ -257,7 +264,7 @@ then
 	sudo echo 'start on runlevel [2345]' >> /etc/init/couchpotato.conf
 	sudo echo 'stop on runlevel [016]' >> /etc/init/couchpotato.conf
 	sudo echo 'respawn limit 10 10' >> /etc/init/couchpotato.conf
-	sudo echo "exec  /home/"$UNAME"/.couchpotato/CouchPotato.py --config_file /home/xbmc/.couchpotato/settings.conf --data_dir /home/xbmc/.couchpotato/" >> /etc/init/couchpotato.conf
+	sudo echo "exec  /home/"$UNAME"/IPVR/.couchpotato/CouchPotato.py --config_file /home/"$UNAME"/IPVR/.couchpotato/settings.conf --data_dir /home/"$UNAME"/IPVR/.couchpotato/" >> /etc/init/couchpotato.conf
 
 	sudo echo "[core]" > /home/$UNAME/IPVR/.couchpotato/settings.conf 
 	sudo echo "api_key = "$API >> /home/$UNAME/IPVR/.couchpotato/settings.conf 
