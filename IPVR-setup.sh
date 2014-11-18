@@ -29,9 +29,9 @@ if [ ! -d "/home/$UNAME" ]; then
   exit 0
 fi
 
-USERNAME=$(dialog --title "Username"--inputbox "Enter the username you want to use to log into your scripts" 10 50 3>&1 1>&2 2>&3)
+USERNAME=$(dialog --title "Username" --inputbox "Enter the username you want to use to log into your scripts" 10 50 3>&1 1>&2 2>&3)
 PASSWORD=$(dialog --title "Password" --passwordbox "Enter the Password you want to use to log into your scripts" 10 50 3>&1 1>&2 2>&3)
-DIR=$(dialog --title "Storage Location" --dselect "Enter the  directory where you would like downloads saved. (/home/john would save complete downloads in /home/john/Downloads/Complete" /home/$UNAME 10 50 3>&1 1>&2 2>&3)
+DIR=$(dialog --title "Storage Directory" --inputbox "Enter the directory where you would like downloads saved. (/home/john would save complete downloads in /home/john/Downloads/Complete" 10 50 /home/$UNAME 3>&1 1>&2 2>&3)
 DIR=${DIR%/}
 API=$(date +%s | sha256sum | base64 | head -c 32 ; sudo echo)
 USENETUSR=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers Username" 10 50 3>&1 1>&2 2>&3)
