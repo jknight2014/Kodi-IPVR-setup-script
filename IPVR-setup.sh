@@ -35,15 +35,16 @@ USENETPASS=$(whiptail --inputbox "Please enter your Usenet servers Password" 10 
 USENETHOST=$(whiptail --inputbox "Please enter your Usenet servers Hostname" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
 USENETPORT=$(whiptail --inputbox "Please enter your Usenet servers connection Port" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
 USENETCONN=$(whiptail --inputbox "Please enter the maximum number of connections your server allowes " 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
-INDEXERHOST=$(whiptail --inputbox "Please enter your Newsnab powered Indexers hostname" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
-INDEXERAPI=$(whiptail --inputbox "Please enter your Newsnab powered Indexers API key" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
-INDEXERNAME=$(whiptail --inputbox "Please enter a name for your Newsnab powered Indexer (This can be anything)" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
-
 if (whiptail --title "Usenet" --yesno "Does your usenet server use SSL?" 8 78) then
     USENETSSL=1
 else
     USENETSSL=0
 fi
+
+INDEXERHOST=$(whiptail --inputbox "Please enter your Newsnab powered Indexers hostname" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
+INDEXERAPI=$(whiptail --inputbox "Please enter your Newsnab powered Indexers API key" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
+INDEXERNAME=$(whiptail --inputbox "Please enter a name for your Newsnab powered Indexer (This can be anything)" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
+
 
 function firstroutine {
  SAB=1
@@ -93,19 +94,19 @@ sudo chmod -R 775 $DIR/Downloads
 sudo mkdir /home/$UNAME/IPVR
 sudo chown -R $UNAME:$UNAME /home/$UNAME/IPVR
 sudo chmod -R 775 /home/$UNAME/IPVR
+	whiptail --title "Knight IPVR" --infobox "Adding repositories" 8 78
+	sudo add-apt-repository -qq ppa:jcfp/ppa
+	sudo add-apt-repository -qq ppa:directhex/monoxide
+	sudo apt-key -qq adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC
+	echo "deb http://update.nzbdrone.com/repos/apt/debian master main" | sudo tee -a /etc/apt/sources.list
 
+	whiptail --title "Knight IPVR" --infobox "Updating Packages" 8 78
+	sudo apt-get -qq update
 if [[ "$SAB" == "1" ]] 
 then
-	whiptail --title "SABnzbd" --infobox "Adding SABnzbd repository" 8 78
-	sudo add-apt-repository ppa:jcfp/ppa
-	 
-
-	whiptail --title "SABnzbd" --infobox "Updating Packages" 8 78
-	sudo apt-get update
-
 
 	whiptail --title "SABnzbd" --infobox "Installing SABnzbd" 8 78
-	sudo apt-get install sabnzbdplus
+	sudo apt-get -qq install sabnzbdplus
 
 	whiptail --title "SABnzbd" --infobox "Stopping SABnzbd" 8 78
 	sleep 2
@@ -116,24 +117,24 @@ then
 
 	whiptail --title "SABnzbd" --infobox "Configuring SABnzbd" 8 78
 	API=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
-	echo "username = "$USER >> /home/$UNAME/IPVR/.sabnzbd/config.ini
-	echo "password = "$PASS >> /home/$UNAME/IPVR/.sabnzbd/config.ini
+	echo "username = "$USERNAME >> /home/$UNAME/IPVR/.sabnzbd/config.ini
+	echo "password = "$PASSWORD >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	echo "api_key = "$API >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	echo "complete_dir = "$DIR"/Downloads/Complete" >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	echo "download_dir = "$DIR"/Downloads/Incomplete" >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	echo "[servers]" >> /home/$UNAME/IPVR/.sabnzbd/config.ini
-	echo "[["$SERVER"]]" >> /home/$UNAME/IPVR/.sabnzbd/config.ini
+	echo "[["$USENETHOST"]]" >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	echo "username = "$USENETUSR >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	echo "enable = 1" >> /home/$UNAME/IPVR/.sabnzbd/config.ini
-	echo "name = "$SERVER >> /home/$UNAME/IPVR/.sabnzbd/config.ini
+	echo "name = "$USENETHOST >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	echo "fillserver = 0" >> /home/$UNAME/IPVR/.sabnzbd/config.ini
-	echo "connections = "$CONNECTIONS >> /home/$UNAME/IPVR/.sabnzbd/config.ini
-	echo "ssl = "$SSL >> /home/$UNAME/IPVR/.sabnzbd/config.ini
-	echo "host = "$SERVER >> /home/$UNAME/IPVR/.sabnzbd/config.ini
+	echo "connections = "$USENETCONN >> /home/$UNAME/IPVR/.sabnzbd/config.ini
+	echo "ssl = "$USENETSSL >> /home/$UNAME/IPVR/.sabnzbd/config.ini
+	echo "host = "$USENETHOST >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	echo "timeout = 120" >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	echo "password = "$USENETPASS >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	echo "optional = 0" >> /home/$UNAME/IPVR/.sabnzbd/config.ini
-	echo "port = "$PORT >> /home/$UNAME/IPVR/.sabnzbd/config.ini
+	echo "port = "$USENETPORT >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	echo "retention = 0" >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	echo "[categories]" >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	echo "[[*]]" >> /home/$UNAME/IPVR/.sabnzbd/config.ini
@@ -167,21 +168,16 @@ then
 	echo 'start on runlevel [2345]' >> /etc/init/sabnzbd.conf
 	echo 'stop on runlevel [016]' >> /etc/init/sabnzbd.conf
 	echo 'respawn limit 10 10' >> /etc/init/sabnzbd.conf
-	echo "exec sabnzbdplus -f /home/"$UNAME"/IPVR/.sabnzbd/config.ini -s 0.0.0.0:8085 -b 0 --permissions 775 "$PARM >> /etc/init/sabnzbd.conf
+	echo "exec sabnzbdplus -f /home/"$UNAME"/IPVR/.sabnzbd/config.ini -s 0.0.0.0:8085 -b 0 --permissions 775 $PARM" >> /etc/init/sabnzbd.conf
 
 	whiptail --infobox "SABnzbd has finished installing. Continuing with Sonarr install." 12 78 --title "FINISHED"
 fi
 
 if [[ "$SONARR" == "1" ]] 
 then
-	whiptail --title "SONARR" --infobox "Adding Repository..." 8 78
-	sudo add-apt-repository ppa:directhex/monoxide
-
-	whiptail --title "SONARR" --infobox "Updating Packages..." 8 78
-	sudo apt-get update
 
 	whiptail --title "SONARR" --infobox "Installing mono..." 8 78
-	sudo apt-get -y install mono-complete
+	sudo apt-get -qq install mono-complete
 
 	whiptail --title "SONARR" --infobox "Checking for previous versions of NZBget/Sonarr..." 8 78
 	sleep 2
@@ -190,10 +186,10 @@ then
 
 	whiptail --title "SONARR" --infobox "Downloading latest Sonarr..." 8 78
 	sleep 2
-	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC
+	sudo apt-key -qq adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC
 	echo "deb http://update.nzbdrone.com/repos/apt/debian master main" | sudo tee -a /etc/apt/sources.list
-	sudo apt-get update
-	sudo apt-get install nzbdrone
+	sudo apt-get -qq update
+	sudo apt-get -qq install nzbdrone
 
 	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = "$UNAME" WHERE Key = chownuser"
 	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = "$UNAME" WHERE Key = chowngroup"
@@ -238,12 +234,9 @@ then
 fi
 if [[ "$CP" == "1" ]] 
 then
-	whiptail --title "COUCHPOTATO" --infobox "Updating Apt" 8 78  
-	sudo apt-get update
-
 
 	whiptail --title "COUCHPOTATO" --infobox "Installing Git and Python" 8 78  
-	sudo apt-get install git-core python
+	sudo apt-get -qq install git-core python
 
 
 	whiptail --title "COUCHPOTATO" --infobox "Killing and version of couchpotato currently running" 8 78  
@@ -369,7 +362,7 @@ then
 	echo "priority = 0" >> /home/xbmc/IPVR/.couchpotato/settings.conf 
 	echo "ssl = 0" >> /home/xbmc/IPVR/.couchpotato/settings.conf 
 	echo "host = localhost:6789" >> /home/xbmc/IPVR/.couchpotato/settings.conf 
-	echo "password = Raptor150" >> /home/xbmc/IPVR/.couchpotato/settings.conf 
+	echo "password = "$PASSWORD >> /home/xbmc/IPVR/.couchpotato/settings.conf 
 	echo "" >> /home/xbmc/IPVR/.couchpotato/settings.conf 
 	echo "[nzbvortex]" >> /home/xbmc/IPVR/.couchpotato/settings.conf 
 	echo "group = " >> /home/xbmc/IPVR/.couchpotato/settings.conf 
@@ -440,7 +433,7 @@ then
 	echo "delete_files = True" >> /home/xbmc/IPVR/.couchpotato/settings.conf 
 	echo "directory = /data/Downloads/Complete/Movies/" >> /home/xbmc/IPVR/.couchpotato/settings.conf 
 	echo "remove_complete = True" >> /home/xbmc/IPVR/.couchpotato/settings.conf 
-	echo "password = Raptor150" >> /home/xbmc/IPVR/.couchpotato/settings.conf 
+	echo "password = "$PASSWORD >> /home/xbmc/IPVR/.couchpotato/settings.conf 
 	echo "" >> /home/xbmc/IPVR/.couchpotato/settings.conf 
 	echo "[utorrent]" >> /home/xbmc/IPVR/.couchpotato/settings.conf 
 	echo "username = " >> /home/xbmc/IPVR/.couchpotato/settings.conf 
