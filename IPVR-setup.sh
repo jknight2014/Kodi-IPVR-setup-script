@@ -12,71 +12,62 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # DO NOT EDIT ANYTHING UNLESS YOU KNOW WHAT YOU ARE DOING.
-if (whiptail --title "Knight IPVR" --yesno "Version: 0.1 (November 16, 2014) Knight IPVR installation will start soon. Please read the following carefully. The script has been confirmed to work on Ubuntu 14.04. 2. While several testing runs identified no known issues, the author cannot be held accountable for any problems that might occur due to the script. 3. If you did not run this script with sudo, you maybe asked for your root password during installation." 12 78) then
+if (dialog --title "Knight IPVR" --yesno "Version: 0.1 (November 16, 2014) Knight IPVR installation will start soon. Please read the following carefully. The script has been confirmed to work on Ubuntu 14.04. 2. While several testing runs identified no known issues, the author cannot be held accountable for any problems that might occur due to the script. 3. If you did not run this script with sudo, you maybe asked for your root password during installation." 12 78) then
     sudo echo
 else
-    whiptail --title "ABORT" --infobox "You have aborted. Please try again." 8 78
+    dialog --title "ABORT" --infobox "You have aborted. Please try again." 8 78
 	exit 0
 fi
 
-UNAME=$(whiptail --inputbox "Enter the user you want your scripts to run as. (Case sensitive, Must exist)" 10 50 --title "System Username" 3>&1 1>&2 2>&3)
+UNAME=$(dialog --title "System Username" --inputbox "Enter the user you want your scripts to run as. (Case sensitive, Must exist)" 10 50 3>&1 1>&2 2>&3)
 
 if [ ! -d "/home/$UNAME" ]; then
-  whiptail --msgbox 'Your username was not found. Your user must have a home folder in the "/home" directory' 10 30
+  dialog --msgbox 'Your username was not found. Your user must have a home folder in the "/home" directory' 10 30
   exit 0
 fi
 
-USERNAME=$(whiptail --inputbox "Enter the username you want to use to log into your scripts" 10 50 --title "Script Username" 3>&1 1>&2 2>&3)
-PASSWORD=$(whiptail --passwordbox "Enter the Password you want to use to log into your scripts" 10 50 --title "Script Password" 3>&1 1>&2 2>&3)
-DIR=$(whiptail --inputbox "Enter the  directory where you would like downloads saved. (/home/john would save complete downloads in /home/john/Downloads/Complete" 10 50 /home/$UNAME --title "Storage Directory" 3>&1 1>&2 2>&3)
+USERNAME=$(dialog --title "Username"--inputbox "Enter the username you want to use to log into your scripts" 10 50 3>&1 1>&2 2>&3)
+PASSWORD=$(dialog --title "Password" --passwordbox "Enter the Password you want to use to log into your scripts" 10 50 3>&1 1>&2 2>&3)
+DIR=$(dialog --title "Storage Location" --dselect "Enter the  directory where you would like downloads saved. (/home/john would save complete downloads in /home/john/Downloads/Complete" /home/$UNAME 10 50 3>&1 1>&2 2>&3)
+DIR=${DIR%/}
 API=$(date +%s | sha256sum | base64 | head -c 32 ; sudo echo)
-USENETUSR=$(whiptail --inputbox "Please enter your Usenet servers Username" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
-USENETPASS=$(whiptail --inputbox "Please enter your Usenet servers Password" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
-USENETHOST=$(whiptail --inputbox "Please enter your Usenet servers Hostname" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
-USENETPORT=$(whiptail --inputbox "Please enter your Usenet servers connection Port" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
-USENETCONN=$(whiptail --inputbox "Please enter the maximum number of connections your server allowes " 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
-if (whiptail --title "Usenet" --yesno "Does your usenet server use SSL?" 8 78) then
+USENETUSR=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers Username" 10 50 3>&1 1>&2 2>&3)
+USENETPASS=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers Password" 10 50 3>&1 1>&2 2>&3)
+USENETHOST=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers Hostname" 10 50 3>&1 1>&2 2>&3)
+USENETPORT=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers connection Port" 10 50 3>&1 1>&2 2>&3)
+USENETCONN=$(dialog --title "Usenet" --inputbox "Please enter the maximum number of connections your server allowes " 10 50 3>&1 1>&2 2>&3)
+if (dialog --title "Usenet" --yesno "Does your usenet server use SSL?" 8 50) then
     USENETSSL=1
 else
     USENETSSL=0
 fi
 
-INDEXERHOST=$(whiptail --inputbox "Please enter your Newsnab powered Indexers hostname" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
-INDEXERAPI=$(whiptail --inputbox "Please enter your Newsnab powered Indexers API key" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
-INDEXERNAME=$(whiptail --inputbox "Please enter a name for your Newsnab powered Indexer (This can be anything)" 10 50 --title "Usenet" 3>&1 1>&2 2>&3)
+INDEXERHOST=$(dialog --title "Usenet Indexer" --inputbox "Please enter your Newsnab powered Indexers hostname" 10 5 3>&1 1>&2 2>&3)
+INDEXERAPI=$(dialog --title "Usenet Indexer" --inputbox "Please enter your Newsnab powered Indexers API key" 10 50 3>&1 1>&2 2>&3)
+INDEXERNAME=$(dialog --title "Usenet Indexer" --inputbox "Please enter a name for your Newsnab powered Indexer (This can be anything)" 10 50 3>&1 1>&2 2>&3)
 
-
-function firstroutine {
- SAB=1
-}
-
-function secondroutine {
- SONARR=1
-}
-
-
-function thirdroutine {
- CP=1
-}
-
-whiptail --title "Test" --checklist --separate-output "Choose which apps you would like installed:" 20 78 15 \
+APPS=$(dialog --checklist "Choose which apps you would like installed:" 20 50 3 \
 "SABnzbd" "" on \
 "Sonarr" "" on \
-"CouchPotato" "" on 2>results
+"CouchPotato" "" on 3>&1 1>&2 2>&3)
 
-while read choice
-do
-        case $choice in
-                SABnzbd) firstroutine
-                ;;
-                Sonarr) secondroutine
-                ;;
-                CouchPotato) thirdroutine
-                ;;
-                *)
-                ;;
-        esac
-done < results
+if [[ $APPS == *CouchPotato* ]]
+then
+CP=1
+fi
+
+if [[ $APPS == *SABnzbd* ]]
+then
+SAB=1
+fi
+
+if [[ $APPS == *Sonarr* ]]
+then
+SONARR=1
+fi
+
+
+dialog --title "Knight IPVR" --infobox "Setting things up" 8 78
 
 sudo mkdir $DIR/Movies
 sudo mkdir $DIR/TVShows
@@ -92,30 +83,44 @@ sudo chmod -R 775 $DIR/Movies
 sudo chmod -R 775 $DIR/TVShows
 sudo chmod -R 775 $DIR/Downloads
 sudo mkdir /home/$UNAME/IPVR
+sudo mkdir /home/$UNAME/IPVR/.sabnzbd
 sudo chown -R $UNAME:$UNAME /home/$UNAME/IPVR
 sudo chmod -R 775 /home/$UNAME/IPVR
-	whiptail --title "Knight IPVR" --infobox "Adding repositories" 8 78
-	sudo add-apt-repository -y ppa:jcfp/ppa  >> /home/$UNAME/IPVR-install.log
-	sudo add-apt-repository -y ppa:directhex/monoxide >> /home/$UNAME/IPVR-install.log
-	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC >> /home/$UNAME/IPVR-install.log
+	dialog --title "Knight IPVR" --infobox "Adding repositories" 8 78
+	sudo add-apt-repository -y ppa:jcfp/ppa 
+	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC
 	sudo echo "deb http://update.nzbdrone.com/repos/apt/debian master main" | sudo tee -a /etc/apt/sources.list
 
-	whiptail --title "Knight IPVR" --infobox "Updating Packages" 8 78
+	dialog --title "Knight IPVR" --infobox "Updating Packages" 8 78
 	sudo apt-get -qq update
 if [[ "$SAB" == "1" ]] 
 then
 
-	whiptail --title "SABnzbd" --infobox "Installing SABnzbd" 8 78
-	sudo apt-get -qq install sabnzbdplus  >> /home/$UNAME/IPVR-install.log
+	dialog --title "SABnzbd" --infobox "Installing SABnzbd" 8 78
+	sudo apt-get -qq install sabnzbdplus 
 
-	whiptail --title "SABnzbd" --infobox "Stopping SABnzbd" 8 78
+	dialog --title "SABnzbd" --infobox "Stopping SABnzbd" 8 78
 	sleep 2
 	sudo killall sabnzbd* >/dev/null 2>&1
 
-	whiptail --title "SABnzbd" --infobox "Removing Standard init scripts" 8 78
-	sudo update-rc.d sabnzbdplus remove >> /home/$UNAME/IPVR-install.log
+	dialog --title "SABnzbd" --infobox "Removing Standard init scripts" 8 78
+	sudo update-rc.d -f sabnzbdplus remove
 
-	whiptail --title "SABnzbd" --infobox "Configuring SABnzbd" 8 78
+	dialog --title "SABnzbd" --infobox "Adding SABnzbd upstart config" 8 78
+	sleep 2
+	sudo echo 'description "Upstart Script to run sabnzbd as a service on Ubuntu/Debian based systems"' > /etc/init/sabnzbd.conf
+	sudo echo "setuid "$UNAME >> /etc/init/sabnzbd.conf
+	sudo echo "setgid "$UNAME >> /etc/init/sabnzbd.conf
+	sudo echo 'start on runlevel [2345]' >> /etc/init/sabnzbd.conf
+	sudo echo 'stop on runlevel [016]' >> /etc/init/sabnzbd.conf
+	sudo echo 'respawn limit 10 10' >> /etc/init/sabnzbd.conf
+	sudo echo "exec sabnzbdplus -f /home/"$UNAME"/IPVR/.sabnzbd/config.ini -s 0.0.0.0:8085 -b 0 --permissions 775" >> /etc/init/sabnzbd.conf
+
+	sudo start sabnzbd
+	sleep 5
+	sudo stop sabnzbd
+	
+	dialog --title "SABnzbd" --infobox "Configuring SABnzbd" 8 78
 	API=$(date +%s | sha256sum | base64 | head -c 32 ; sudo echo)
 	sudo echo "username = "$USERNAME > /home/$UNAME/IPVR/.sabnzbd/config.ini
 	sudo echo "password = "$PASSWORD >> /home/$UNAME/IPVR/.sabnzbd/config.ini
@@ -159,63 +164,25 @@ then
 	sudo echo 'newzbin = ""' >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 	sudo echo "dir = "$DIR"/Downloads/Complete/Movies" >> /home/$UNAME/IPVR/.sabnzbd/config.ini
 
-
-	whiptail --title "SABnzbd" --infobox "Adding SABnzbd upstart config" 8 78
-	sleep 2
-	sudo echo 'description "Upstart Script to run sabnzbd as a service on Ubuntu/Debian based systems"' > /etc/init/sabnzbd.conf
-	sudo echo "setuid "$UNAME >> /etc/init/sabnzbd.conf
-	sudo echo "setgid "$UNAME >> /etc/init/sabnzbd.conf
-	sudo echo 'start on runlevel [2345]' >> /etc/init/sabnzbd.conf
-	sudo echo 'stop on runlevel [016]' >> /etc/init/sabnzbd.conf
-	sudo echo 'respawn limit 10 10' >> /etc/init/sabnzbd.conf
-	sudo echo "exec sabnzbdplus -f /home/"$UNAME"/IPVR/.sabnzbd/config.ini -s 0.0.0.0:8085 -b 0 --permissions 775" >> /etc/init/sabnzbd.conf
-
-	whiptail --infobox "SABnzbd has finished installing. Continuing with Sonarr install." 12 78 --title "FINISHED"
+	dialog --infobox "SABnzbd has finished installing. Continuing with Sonarr install." 12 78
 fi
 
 if [[ "$SONARR" == "1" ]] 
 then
 
-	whiptail --title "SONARR" --infobox "Installing mono..." 8 78
-	sudo apt-get -qq install mono-complete  >> /home/$UNAME/IPVR-install.log
+	dialog --title "SONARR" --infobox "Installing mono..." 8 78
+	sudo apt-get -qq install mono-complete 
 
-	whiptail --title "SONARR" --infobox "Checking for previous versions of NZBget/Sonarr..." 8 78
+	dialog --title "SONARR" --infobox "Checking for previous versions of NZBget/Sonarr..." 8 78
 	sleep 2
 	sudo killall sonarr* >/dev/null 2>&1
 	sudo killall nzbget* >/dev/null 2>&1
 
-	whiptail --title "SONARR" --infobox "Downloading latest Sonarr..." 8 78
+	dialog --title "SONARR" --infobox "Downloading latest Sonarr..." 8 78
 	sleep 2
-	sudo apt-get -qq install nzbdrone >> /home/$UNAME/IPVR-install.log
-
-	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = "$UNAME" WHERE Key = chownuser"
-	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = "$UNAME" WHERE Key = chowngroup"
-	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = "$DIR"/Downloads/Complete/TV WHERE Key = downloadedepisodesfolder"
-	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = "$UNAME" WHERE Key = chowngroup"
-	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "INSERT INTO DownloadClients VALUES (NULL,'1','Sabnzbd,'Sabnzbd','{"host": "localhost", "port": 8085, "apiKey": "$API", "username": "$USERNAME", "password": "$PASSWORD", "tvCategory": "tv", "recentTvPriority": 1, "olderTvPriority": -100, "useSsl": false}', 'SabnzbdSettings')"
-	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "INSERT INTO Indexers VALUES (NULL,'"$INDEXNAME"','Newznab,'{ "url": "$INDEXHOST", "apiKey": "$INDEXAPI", "categories": [   5030,   5040 ], "animeCategories": []  }','NewznabSettings','1','1')"
-	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "INSERT INTO RootFolders VALUES (NULL,'"$DIR"/TVShows')"
-
-	sudo echo "<?xml version="1.0" encoding="utf-8" standalone="yes"?>" > /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "<Config>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "  <Port>8989</Port>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "  <SslPort>9898</SslPort>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "  <EnableSsl>False</EnableSsl>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "  <LaunchBrowser>False</LaunchBrowser>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "  <ApiKey>32cc1aa3d523445c8612bd5d130ba74a</ApiKey>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "  <AuthenticationEnabled>True</AuthenticationEnabled>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "  <Branch>torrents</Branch>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "  <Username>"$USERNAME"</Username>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "  <Password>"$PASSWORD"</Password>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "  <LogLevel>Trace</LogLevel>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "  <SslCertHash>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "  </SslCertHash>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "  <UrlBase>sonarr</UrlBase>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "  <UpdateMechanism>BuiltIn</UpdateMechanism>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "  <UpdateAutomatically>True</UpdateAutomatically>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-	sudo echo "</Config>" >> /home/$UNAME/.config/NzbDrone/nzbdrone.db 
-
-	whiptail --title "SONARR" --infobox "Creating new default and init scripts..." 8 78
+	sudo apt-get -qq install nzbdrone
+	
+	dialog --title "SONARR" --infobox "Creating new default and init scripts..." 8 78
 	sleep 2
 	sudo echo 'description "Upstart Script to run sonarr as a service on Ubuntu/Debian based systems"' > /etc/init/sonarr.conf
 	sudo echo "setuid "$UNAME >> /etc/init/sonarr.conf
@@ -226,28 +193,56 @@ then
 	sudo echo 'respawn limit 10 10' >> /etc/init/sonarr.conf
 	sudo echo 'exec mono $DIR/NzbDrone.exe' >> /etc/init/sonarr.conf
 	 
+	sudo start sonarr
+	sudo stop sonarr
 
-	whiptail --infobox "Sonarr has finished installing. Continuing with CouchPotato install." 12 78 --title "FINISHED"
+	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = '"$UNAME"' WHERE Key = 'chownuser'"
+	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = '"$UNAME"' WHERE Key = 'chowngroup'"
+	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = '"$DIR"/Downloads/Complete/TV' WHERE Key = 'downloadedepisodesfolder'"
+	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "INSERT INTO DownloadClients VALUES (NULL,'1','Sabnzbd,'Sabnzbd','{"host": "localhost", "port": 8085, "apiKey": "$API", "username": "$USERNAME", "password": "$PASSWORD", "tvCategory": "tv", "recentTvPriority": 1, "olderTvPriority": -100, "useSsl": false}', 'SabnzbdSettings')"
+	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "INSERT INTO Indexers VALUES (NULL,'"$INDEXNAME"','Newznab,'{ "url": "$INDEXHOST", "apiKey": "$INDEXAPI", "categories": [   5030,   5040 ], "animeCategories": []  }','NewznabSettings','1','1')"
+	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "INSERT INTO RootFolders VALUES (NULL,'"$DIR"/TVShows')"
+
+	sudo echo "<?xml version="1.0" encoding="utf-8" standalone="yes"?>" > /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "<Config>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "  <Port>8989</Port>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "  <SslPort>9898</SslPort>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "  <EnableSsl>False</EnableSsl>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "  <LaunchBrowser>False</LaunchBrowser>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "  <ApiKey>32cc1aa3d523445c8612bd5d130ba74a</ApiKey>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "  <AuthenticationEnabled>True</AuthenticationEnabled>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "  <Branch>torrents</Branch>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "  <Username>"$USERNAME"</Username>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "  <Password>"$PASSWORD"</Password>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "  <LogLevel>Trace</LogLevel>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "  <SslCertHash>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "  </SslCertHash>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "  <UrlBase>sonarr</UrlBase>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "  <UpdateMechanism>BuiltIn</UpdateMechanism>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "  <UpdateAutomatically>True</UpdateAutomatically>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo "</Config>" >> /home/$UNAME/.config/NzbDrone/config.xml 
+
+	dialog --infobox "Sonarr has finished installing. Continuing with CouchPotato install." 12 78 --title "FINISHED"
 fi
 if [[ "$CP" == "1" ]] 
 then
 
-	whiptail --title "COUCHPOTATO" --infobox "Installing Git and Python" 8 78  
-	sudo apt-get -qq install git-core python  >> /home/$UNAME/IPVR-install.log
+	dialog --title "COUCHPOTATO" --infobox "Installing Git and Python" 8 78  
+	sudo apt-get -qq install git-core python 
 
 
-	whiptail --title "COUCHPOTATO" --infobox "Killing and version of couchpotato currently running" 8 78  
+	dialog --title "COUCHPOTATO" --infobox "Killing and version of couchpotato currently running" 8 78  
 	sleep 2
 	sudo killall couchpotato* >/dev/null 2>&1
 
 
-	whiptail --title "COUCHPOTATO" --infobox "Downloading the latest version of CouchPotato" 8 78  
+	dialog --title "COUCHPOTATO" --infobox "Downloading the latest version of CouchPotato" 8 78  
 	sleep 2
-	mkdir /home/$UNAME/IPVR >> /home/$UNAME/IPVR-install.log
-	cd /home/$UNAME/IPVR >> /home/$UNAME/IPVR-install.log
-	git clone git://github.com/RuudBurger/CouchPotatoServer.git .couchpotato >> /home/$UNAME/IPVR-install.log
+	mkdir /home/$UNAME/IPVR
+	cd /home/$UNAME/IPVR
+	git clone git://github.com/RuudBurger/CouchPotatoServer.git .couchpotato
 
-	whiptail --title "COUCHPOTATO" --infobox "Installing upstart configurations" 8 78  
+	dialog --title "COUCHPOTATO" --infobox "Installing upstart configurations" 8 78  
 	sleep 2
 	sudo echo 'description "Upstart Script to run couchpotato as a service on Ubuntu/Debian based systems"' > /etc/init/couchpotato.conf
 	sudo echo "setuid "$UNAME >> /etc/init/couchpotato.conf
@@ -861,7 +856,7 @@ then
 	sudo echo "" >> /home/$UNAME/IPVR/.couchpotato/settings.conf 
 fi
 
-whiptail --msgbox "All done.  Your IPVR should start within 10-20 seconds If not you can start it using (sudo start sabnzbd sonarr couchpotato) command.  Then open http://localhost:#PORT in your browser. Replace #PORT with the port of the program you want to access. Couchpotato = 5050 Sonarr = 8989 SABnzbd = 8085. Replace localhost with your server IP for remote systems." 15 78 --title "FINISHED"
+dialog --title "FINISHED" --msgbox "All done.  Your IPVR should start within 10-20 seconds If not you can start it using (sudo start sabnzbd sonarr couchpotato) command.  Then open http://localhost:#PORT in your browser. Replace #PORT with the port of the program you want to access. Couchpotato = 5050 Sonarr = 8989 SABnzbd = 8085. Replace localhost with your server IP for remote systems." 15 78
 
 
 sudo start sabnzbd
