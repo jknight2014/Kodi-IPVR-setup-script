@@ -94,9 +94,9 @@ sudo mkdir /home/$UNAME/IPVR/.sabnzbd
 sudo chown -R $UNAME:$UNAME /home/$UNAME/IPVR
 sudo chmod -R 775 /home/$UNAME/IPVR
 	dialog --title "Knight IPVR" --infobox "Adding repositories" 6 50
-	sudo add-apt-repository -y ppa:jcfp/ppa 
-	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC
-	sudo echo "deb http://update.nzbdrone.com/repos/apt/debian master main" | sudo tee -a /etc/apt/sources.list
+	sudo add-apt-repository -y ppa:jcfp/ppa >/dev/null 2>&1
+	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC >/dev/null 2>&1
+	sudo echo "deb http://update.nzbdrone.com/repos/apt/debian master main" | sudo tee -a /etc/apt/sources.list >/dev/null 2>&1
 
 	dialog --title "Knight IPVR" --infobox "Updating Packages" 6 50
 	sudo apt-get -qq update >/dev/null 2>&1
