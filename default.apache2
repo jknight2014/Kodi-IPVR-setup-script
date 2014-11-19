@@ -1,46 +1,1 @@
-<VirtualHost *:80>
-RewriteEngine on
-ReWriteCond %{SERVER_PORT} !^443$
-RewriteRule ^/(.*) https://%{HTTP_HOST}/$1 [NC,R,L]
-</VirtualHost>
-
-<VirtualHost *:443>
-ServerAdmin admin@domain.com
-ServerName localhost
-
-ProxyRequests Off
-ProxyPreserveHost On
-
-<Proxy *>
-Order deny,allow
-Allow from all
-</Proxy>
-
-<Location />
-Order allow,deny
-Allow from all
-</Location>
-
-SSLEngine On
-SSLProxyEngine On
-SSLCertificateFile /etc/ssl/certs/apache.crt
-SSLCertificateKeyFile /etc/ssl/private/apache.key
-
-ProxyPass /sabnzbd http://localhost:8085/sabnzbd
-ProxyPassReverse /sabnzbd http://localhost:8085/sabnzbd
-
-ProxyPass /sonarr http://localhost:8989/sonarr
-ProxyPassReverse /sonarr http://localhost:8989/sonarr
-
-ProxyPass /couchpotato http://localhost:5050/couchpotato
-ProxyPassReverse /couchpotato http://localhost:5050/couchpotato
-
-RewriteEngine on
-RewriteRule ^/xbmc$ /xbmc/ [R]
-
-ProxyPass /xbmc http://localhost:8080
-ProxyPassReverse /xbmc http://localhost:8080
-
-ErrorLog /var/log/apache2/error.log
-LogLevel warn
-</VirtualHost>
+echo "<VirtualHost *:80>" > /etc/apache2/sites-available/default echo "RewriteEngine on" >> /etc/apache2/sites-available/default echo "ReWriteCond %{SERVER_PORT} !^443$" >> /etc/apache2/sites-available/default echo "RewriteRule ^/(.*) https://%{HTTP_HOST}/$1 [NC,R,L]" >> /etc/apache2/sites-available/default echo "</VirtualHost>" >> /etc/apache2/sites-available/default echo "" >> /etc/apache2/sites-available/default echo "<VirtualHost *:443>" >> /etc/apache2/sites-available/default echo "ServerAdmin admin@domain.com" >> /etc/apache2/sites-available/default echo "ServerName localhost" >> /etc/apache2/sites-available/default echo "" >> /etc/apache2/sites-available/default echo "ProxyRequests Off" >> /etc/apache2/sites-available/default echo "ProxyPreserveHost On" >> /etc/apache2/sites-available/default echo "" >> /etc/apache2/sites-available/default echo "<Proxy *>" >> /etc/apache2/sites-available/default echo "Order deny,allow" >> /etc/apache2/sites-available/default echo "Allow from all" >> /etc/apache2/sites-available/default echo "</Proxy>" >> /etc/apache2/sites-available/default echo "" >> /etc/apache2/sites-available/default echo "<Location />" >> /etc/apache2/sites-available/default echo "Order allow,deny" >> /etc/apache2/sites-available/default echo "Allow from all" >> /etc/apache2/sites-available/default echo "</Location>" >> /etc/apache2/sites-available/default echo "" >> /etc/apache2/sites-available/default echo "SSLEngine On" >> /etc/apache2/sites-available/default echo "SSLProxyEngine On" >> /etc/apache2/sites-available/default echo "SSLCertificateFile /etc/ssl/certs/apache.crt" >> /etc/apache2/sites-available/default echo "SSLCertificateKeyFile /etc/ssl/private/apache.key" >> /etc/apache2/sites-available/default echo "" >> /etc/apache2/sites-available/default echo "ProxyPass /sabnzbd http://localhost:8085/sabnzbd" >> /etc/apache2/sites-available/default echo "ProxyPassReverse /sabnzbd http://localhost:8085/sabnzbd" >> /etc/apache2/sites-available/default echo "" >> /etc/apache2/sites-available/default echo "ProxyPass /sonarr http://localhost:8989/sonarr" >> /etc/apache2/sites-available/default echo "ProxyPassReverse /sonarr http://localhost:8989/sonarr" >> /etc/apache2/sites-available/default echo "" >> /etc/apache2/sites-available/default echo "ProxyPass /couchpotato http://localhost:5050/couchpotato" >> /etc/apache2/sites-available/default echo "ProxyPassReverse /couchpotato http://localhost:5050/couchpotato" >> /etc/apache2/sites-available/default echo "" >> /etc/apache2/sites-available/default echo "RewriteEngine on" >> /etc/apache2/sites-available/default echo "RewriteRule ^/xbmc$ /xbmc/ [R]" >> /etc/apache2/sites-available/default echo "" >> /etc/apache2/sites-available/default echo "ProxyPass /xbmc http://localhost:8080" >> /etc/apache2/sites-available/default echo "ProxyPassReverse /xbmc http://localhost:8080" >> /etc/apache2/sites-available/default echo "" >> /etc/apache2/sites-available/default echo "ErrorLog /var/log/apache2/error.log" >> /etc/apache2/sites-available/default echo "LogLevel warn" >> /etc/apache2/sites-available/default echo "</VirtualHost> >> /etc/apache2/sites-available/default

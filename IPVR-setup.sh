@@ -38,9 +38,9 @@ PASSWORD=$(dialog --title "Password" --passwordbox "Enter the Password you want 
 DIR=$(dialog --title "Storage Directory" --inputbox "Enter the directory where you would like downloads saved. (/home/john would save complete downloads in /home/john/Downloads/Complete" 10 50 /home/$UNAME 3>&1 1>&2 2>&3)
 DIR=${DIR%/}
 API=$(date +%s | sha256sum | base64 | head -c 32 ; sudo echo)
+USENETHOST=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers Hostname" 10 50 3>&1 1>&2 2>&3)
 USENETUSR=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers Username" 10 50 3>&1 1>&2 2>&3)
 USENETPASS=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers Password" 10 50 3>&1 1>&2 2>&3)
-USENETHOST=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers Hostname" 10 50 3>&1 1>&2 2>&3)
 USENETPORT=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers connection Port" 10 50 3>&1 1>&2 2>&3)
 USENETCONN=$(dialog --title "Usenet" --inputbox "Please enter the maximum number of connections your server allowes " 10 50 3>&1 1>&2 2>&3)
 if (dialog --title "Usenet" --yesno "Does your usenet server use SSL?" 8 50) then
@@ -121,7 +121,7 @@ then
 	sudo echo 'start on runlevel [2345]' >> /etc/init/sabnzbd.conf
 	sudo echo 'stop on runlevel [016]' >> /etc/init/sabnzbd.conf
 	sudo echo 'respawn limit 10 10' >> /etc/init/sabnzbd.conf
-	sudo echo "exec sabnzbdplus -f /home/"$UNAME"/IPVR/.sabnzbd/config.ini -s :8085" >> /etc/init/sabnzbd.conf
+	sudo echo "exec sabnzbdplus -f /home/"$UNAME"/IPVR/.sabnzbd/config.ini -s 0.0.0.0:8085" >> /etc/init/sabnzbd.conf
 
 	sudo start sabnzbd >/dev/null 2>&1
 	sleep 5
@@ -219,7 +219,7 @@ done
 	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "INSERT INTO Indexers VALUES (NULL,'"$INDEXNAME"','Newznab,'{ "url": "$INDEXHOST", "apiKey": "$INDEXAPI", "categories": [   5030,   5040 ], "animeCategories": []  }','NewznabSettings','1','1')"
 	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "INSERT INTO RootFolders VALUES (NULL,'"$DIR"/TVShows')"
 
-	sudo echo "<?xml version="1.0" encoding="utf-8" standalone="yes"?>" > /home/$UNAME/.config/NzbDrone/config.xml 
+	sudo echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?>' > /home/$UNAME/.config/NzbDrone/config.xml 
 	sudo echo "<Config>" >> /home/$UNAME/.config/NzbDrone/config.xml 
 	sudo echo "  <Port>8989</Port>" >> /home/$UNAME/.config/NzbDrone/config.xml 
 	sudo echo "  <SslPort>9898</SslPort>" >> /home/$UNAME/.config/NzbDrone/config.xml 
@@ -873,7 +873,7 @@ fi
 
 dialog --title "Permissions" --infobox "Fixing Ownership and Permissions." 5 50
 sudo chmod -R 775 /home/$UNAME/IPVR/
-sudo chown -R 775 /home/$UNAME/IPVR/
+sudo chown -R $UNAME:$UNAME /home/$UNAME/IPVR/
 
 dialog --title "FINISHED" --msgbox "All done.  Your IPVR should start within 10-20 seconds If not you can start it using (sudo start sabnzbd sonarr couchpotato) command.  Then open http://localhost:#PORT in your browser. Replace #PORT with the port of the program you want to access. Couchpotato = 5050 Sonarr = 8989 SABnzbd = 8085. Replace localhost with your server IP for remote systems." 15 78
 
@@ -897,53 +897,53 @@ sudo a2enmod proxy_http > /dev/null 2>&1
 sudo a2enmod rewrite > /dev/null 2>&1
 sudo a2enmod ssl > /dev/null 2>&1
 sudo openssl req -x509 -nodes -days 7200 -newkey rsa:2048 -subj "/C=US/ST=NONE/L=NONE/O=Private/CN=Private" -keyout /etc/ssl/private/apache.key -out /etc/ssl/certs/apache.crt
-echo "" > /etc/apache2/sites-available/default
-echo "<VirtualHost *:80>" > /etc/apache2/sites-available/default 
-echo "RewriteEngine on" >> /etc/apache2/sites-available/default 
-echo "ReWriteCond %{SERVER_PORT} !^443$" >> /etc/apache2/sites-available/default 
-echo "RewriteRule ^/(.*) https://%{HTTP_HOST}/$1 [NC,R,L]" >> /etc/apache2/sites-available/default 
-echo "</VirtualHost>" >> /etc/apache2/sites-available/default 
-echo "" >> /etc/apache2/sites-available/default 
-echo "<VirtualHost *:443>" >> /etc/apache2/sites-available/default 
-echo "ServerAdmin admin@domain.com" >> /etc/apache2/sites-available/default 
-echo "ServerName localhost" >> /etc/apache2/sites-available/default 
-echo "" >> /etc/apache2/sites-available/default 
-echo "ProxyRequests Off" >> /etc/apache2/sites-available/default 
-echo "ProxyPreserveHost On" >> /etc/apache2/sites-available/default 
-echo "" >> /etc/apache2/sites-available/default 
-echo "<Proxy *>" >> /etc/apache2/sites-available/default 
-echo "Order deny,allow" >> /etc/apache2/sites-available/default 
-echo "Allow from all" >> /etc/apache2/sites-available/default 
-echo "</Proxy>" >> /etc/apache2/sites-available/default 
-echo "" >> /etc/apache2/sites-available/default 
-echo "<Location />" >> /etc/apache2/sites-available/default 
-echo "Order allow,deny" >> /etc/apache2/sites-available/default 
-echo "Allow from all" >> /etc/apache2/sites-available/default 
-echo "</Location>" >> /etc/apache2/sites-available/default 
-echo "" >> /etc/apache2/sites-available/default 
-echo "SSLEngine On" >> /etc/apache2/sites-available/default 
-echo "SSLProxyEngine On" >> /etc/apache2/sites-available/default 
-echo "SSLCertificateFile /etc/ssl/certs/apache.crt" >> /etc/apache2/sites-available/default 
-echo "SSLCertificateKeyFile /etc/ssl/private/apache.key" >> /etc/apache2/sites-available/default 
-echo "" >> /etc/apache2/sites-available/default 
-echo "ProxyPass /sabnzbd http://localhost:8085/sabnzbd" >> /etc/apache2/sites-available/default 
-echo "ProxyPassReverse /sabnzbd http://localhost:8085/sabnzbd" >> /etc/apache2/sites-available/default 
-echo "" >> /etc/apache2/sites-available/default 
-echo "ProxyPass /sonarr http://localhost:8989/sonarr" >> /etc/apache2/sites-available/default 
-echo "ProxyPassReverse /sonarr http://localhost:8989/sonarr" >> /etc/apache2/sites-available/default 
-echo "" >> /etc/apache2/sites-available/default 
-echo "ProxyPass /couchpotato http://localhost:5050/couchpotato" >> /etc/apache2/sites-available/default 
-echo "ProxyPassReverse /couchpotato http://localhost:5050/couchpotato" >> /etc/apache2/sites-available/default 
-echo "" >> /etc/apache2/sites-available/default 
-echo "RewriteEngine on" >> /etc/apache2/sites-available/default 
-echo "RewriteRule ^/xbmc$ /xbmc/ [R]" >> /etc/apache2/sites-available/default 
-echo "" >> /etc/apache2/sites-available/default 
-echo "ProxyPass /xbmc http://localhost:8080" >> /etc/apache2/sites-available/default 
-echo "ProxyPassReverse /xbmc http://localhost:8080" >> /etc/apache2/sites-available/default 
-echo "" >> /etc/apache2/sites-available/default 
-echo "ErrorLog /var/log/apache2/error.log" >> /etc/apache2/sites-available/default 
-echo "LogLevel warn" >> /etc/apache2/sites-available/default 
-echo "</VirtualHost>" >> /etc/apache2/sites-available/default
+echo "" > /etc/apache2/sites-available/000-default.conf
+echo "<VirtualHost *:80>" > /etc/apache2/sites-available/000-default.conf 
+echo "RewriteEngine on" >> /etc/apache2/sites-available/000-default.conf 
+echo "ReWriteCond %{SERVER_PORT} !^443$" >> /etc/apache2/sites-available/000-default.conf 
+echo "RewriteRule ^/(.*) https://%{HTTP_HOST}/$1 [NC,R,L]" >> /etc/apache2/sites-available/000-default.conf 
+echo "</VirtualHost>" >> /etc/apache2/sites-available/000-default.conf 
+echo "" >> /etc/apache2/sites-available/000-default.conf 
+echo "<VirtualHost *:443>" >> /etc/apache2/sites-available/000-default.conf 
+echo "ServerAdmin admin@domain.com" >> /etc/apache2/sites-available/000-default.conf 
+echo "ServerName localhost" >> /etc/apache2/sites-available/000-default.conf 
+echo "" >> /etc/apache2/sites-available/000-default.conf 
+echo "ProxyRequests Off" >> /etc/apache2/sites-available/000-default.conf 
+echo "ProxyPreserveHost On" >> /etc/apache2/sites-available/000-default.conf 
+echo "" >> /etc/apache2/sites-available/000-default.conf 
+echo "<Proxy *>" >> /etc/apache2/sites-available/000-default.conf 
+echo "Order deny,allow" >> /etc/apache2/sites-available/000-default.conf 
+echo "Allow from all" >> /etc/apache2/sites-available/000-default.conf 
+echo "</Proxy>" >> /etc/apache2/sites-available/000-default.conf 
+echo "" >> /etc/apache2/sites-available/000-default.conf 
+echo "<Location />" >> /etc/apache2/sites-available/000-default.conf 
+echo "Order allow,deny" >> /etc/apache2/sites-available/000-default.conf 
+echo "Allow from all" >> /etc/apache2/sites-available/000-default.conf 
+echo "</Location>" >> /etc/apache2/sites-available/000-default.conf 
+echo "" >> /etc/apache2/sites-available/000-default.conf 
+echo "SSLEngine On" >> /etc/apache2/sites-available/000-default.conf 
+echo "SSLProxyEngine On" >> /etc/apache2/sites-available/000-default.conf 
+echo "SSLCertificateFile /etc/ssl/certs/apache.crt" >> /etc/apache2/sites-available/000-default.conf 
+echo "SSLCertificateKeyFile /etc/ssl/private/apache.key" >> /etc/apache2/sites-available/000-default.conf 
+echo "" >> /etc/apache2/sites-available/000-default.conf 
+echo "ProxyPass /sabnzbd http://localhost:8085/sabnzbd" >> /etc/apache2/sites-available/000-default.conf 
+echo "ProxyPassReverse /sabnzbd http://localhost:8085/sabnzbd" >> /etc/apache2/sites-available/000-default.conf 
+echo "" >> /etc/apache2/sites-available/000-default.conf 
+echo "ProxyPass /sonarr http://localhost:8989/sonarr" >> /etc/apache2/sites-available/000-default.conf 
+echo "ProxyPassReverse /sonarr http://localhost:8989/sonarr" >> /etc/apache2/sites-available/000-default.conf 
+echo "" >> /etc/apache2/sites-available/000-default.conf 
+echo "ProxyPass /couchpotato http://localhost:5050/couchpotato" >> /etc/apache2/sites-available/000-default.conf 
+echo "ProxyPassReverse /couchpotato http://localhost:5050/couchpotato" >> /etc/apache2/sites-available/000-default.conf 
+echo "" >> /etc/apache2/sites-available/000-default.conf 
+echo "RewriteEngine on" >> /etc/apache2/sites-available/000-default.conf 
+echo "RewriteRule ^/xbmc$ /xbmc/ [R]" >> /etc/apache2/sites-available/000-default.conf 
+echo "" >> /etc/apache2/sites-available/000-default.conf 
+echo "ProxyPass /xbmc http://localhost:8080" >> /etc/apache2/sites-available/000-default.conf 
+echo "ProxyPassReverse /xbmc http://localhost:8080" >> /etc/apache2/sites-available/000-default.conf 
+echo "" >> /etc/apache2/sites-available/000-default.conf 
+echo "ErrorLog /var/log/apache2/error.log" >> /etc/apache2/sites-available/000-default.conf 
+echo "LogLevel warn" >> /etc/apache2/sites-available/000-default.conf 
+echo "</VirtualHost>" >> /etc/apache2/sites-available/000-default.conf
 sudo service apache2 restart 
 
-dialog --title "FINISHED" --msgbox "Apache rewrite installed. Use http://HOST/sonarr to access sonarr, same for couchpotato and sabnzbd" 5 50
+dialog --title "FINISHED" --msgbox "Apache rewrite installed. Use https://HOST/sonarr to access sonarr, same for couchpotato and sabnzbd" 5 50
