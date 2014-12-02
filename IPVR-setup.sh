@@ -12,6 +12,8 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # DO NOT EDIT ANYTHING UNLESS YOU KNOW WHAT YOU ARE DOING.
+export NCURSES_NO_UTF8_ACS=1
+sudo echo 'Dpkg::Progress-Fancy "1";' > /etc/apt/apt.conf.d/99progressbar
 if [ "$(id -u)" != "0" ]; then
 	echo "Sorry, you must run this script as root. Add sudo to the beginning of your start command(sudo bash SCRIPT)"
 	exit 1
@@ -945,5 +947,5 @@ echo "ErrorLog /var/log/apache2/error.log" >> /etc/apache2/sites-available/000-d
 echo "LogLevel warn" >> /etc/apache2/sites-available/000-default.conf 
 echo "</VirtualHost>" >> /etc/apache2/sites-available/000-default.conf
 sudo service apache2 restart 
-
+fi
 dialog --title "FINISHED" --msgbox "Apache rewrite installed. Use https://HOST/sonarr to access sonarr, same for couchpotato and sabnzbd" 5 50
