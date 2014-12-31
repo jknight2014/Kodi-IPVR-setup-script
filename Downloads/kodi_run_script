@@ -1,0 +1,44 @@
+#!/bin/bash
+#/usr/bin/runKODI
+
+USER_NAME="kodi"
+
+if [ "$(pidof X)" ] ; then
+	/usr/share/$USER_NAME/kodi.bin  --standalone
+	exit
+fi
+
+while true
+do
+	echo "#!/bin/bash" >  /home/$USER_NAME/.xsession
+	echo "/usr/bin/kodi --standalone" >>  /home/$USER_NAME/.xsession
+	echo "case \"\$?\" in" >>  /home/$USER_NAME/.xsession
+	echo "    0 ) # Quit" >>  /home/$USER_NAME/.xsession
+	echo "        touch /tmp/noRestartKODI" >> /home/$USER_NAME/.xsession
+	echo "        break ;;"  >>  /home/$USER_NAME/.xsession
+	echo "    64 ) # Shutdown System"  >>  /home/$USER_NAME/.xsession
+	echo "        sleep 10 ;;"  >>  /home/$USER_NAME/.xsession
+	echo "    65 ) # Warm Reboot"  >>  /home/$USER_NAME/.xsession
+	echo "        echo "Restarting KODI ..." ;;"  >>  /home/$USER_NAME/.xsession
+	echo "    66 ) # Reboot System"  >>  /home/$USER_NAME/.xsession
+	echo "        sleep 10 ;;"  >>  /home/$USER_NAME/.xsession
+	echo "     * ) ;;"  >>  /home/$USER_NAME/.xsession
+	echo "esac"  >>  /home/$USER_NAME/.xsession
+
+	chown $USER_NAME:$USER_NAME /home/$USER_NAME/.xsession
+
+	initctl emit starting-x
+
+	if [ "$(whoami)" == "root" ] ; then
+		su kodi -c "startx -- -br > /dev/null 2>&1" -l
+	else
+		startx -- -br > /dev/null 2>&1
+	fi
+
+	if [ -e /tmp/noRestartKODI ] ; then
+		rm /tmp/noRestartKODI
+		rm /home/$USER_NAME/.xsession
+		break
+	fi
+done
+

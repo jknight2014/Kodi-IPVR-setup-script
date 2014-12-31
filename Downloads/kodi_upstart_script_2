@@ -1,0 +1,24 @@
+# kodi standalone service
+
+# starts KODI on startup by using xinit.
+# will try to auto respawn for 5 mins if it crashes
+# launches kodi in the "standalone mode" with no xcursor (cursor in kodi still works)
+# by default runs as kodi, to change edit below.
+env USER=kodi
+
+description     "KODI standalone service"
+author          "Matt Filetto"
+
+start on (started dbus and started mountall and net-device-up IFACE!=lo)
+stop on runlevel [016]
+
+# tell upstart to respawn the process if abnormal exit
+respawn
+respawn limit 10 5
+
+# nice level
+limit nice 21 21
+
+script
+  exec su -c "xinit /usr/bin/kodi --standalone -- -bs -nocursor :0" $USER
+end script
