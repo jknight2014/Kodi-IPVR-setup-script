@@ -35,6 +35,15 @@ if [ ! -d "/home/$UNAME" ]; then
   exit 0
 fi
 
+
+APPS=$(dialog --checklist "Choose which apps you would like installed:" 20 50 3 \
+"KODI" "" on \
+"SABnzbd" "" on \
+"Sonarr" "" on \
+"CouchPotato" "" on 3>&1 1>&2 2>&3)
+
+if [[ $APPS == *CouchPotato*] || [$APPS == *Sonarr*] || [$APPS == *SABnzbd*]]
+then
 USERNAME=$(dialog --title "Username" --inputbox "Enter the username you want to use to log into your scripts" 10 50 3>&1 1>&2 2>&3)
 PASSWORD=$(dialog --title "Password" --passwordbox "Enter the Password you want to use to log into your scripts" 10 50 3>&1 1>&2 2>&3)
 DIR=$(dialog --title "Storage Directory" --inputbox "Enter the directory where you would like downloads saved. (/home/john would save complete downloads in /home/john/Downloads/Complete" 10 50 /home/$UNAME 3>&1 1>&2 2>&3)
@@ -55,13 +64,7 @@ INDEXERHOST=$(dialog --title "Usenet Indexer" --inputbox "Please enter your News
 INDEXERAPI=$(dialog --title "Usenet Indexer" --inputbox "Please enter your Newsnab powered Indexers API key" 10 50 3>&1 1>&2 2>&3)
 INDEXERNAME=$(dialog --title "Usenet Indexer" --inputbox "Please enter a name for your Newsnab powered Indexer (This can be anything)" 10 50 3>&1 1>&2 2>&3)
 
-APPS=$(dialog --checklist "Choose which apps you would like installed:" 20 50 3 \
-"KODI" "" on \
-"SABnzbd" "" on \
-"Sonarr" "" on \
-"CouchPotato" "" on 3>&1 1>&2 2>&3)
-
-
+fi
 if [[ $APPS == *KODI* ]]
 then
 KODI=1
@@ -375,6 +378,7 @@ function addXbmcPpa()
         IS_ADDED=$(addRepository "$KODI_PPA_UNSTABLE")
 	else
 		IS_ADDED=$(addRepository "$KODI_PPA")
+	fi
 }
 
 function distUpgrade()
