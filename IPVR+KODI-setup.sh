@@ -61,6 +61,7 @@ if [[ $APPS == *SABnzbd* ]]
 	fi
 fi
 if [[ $APPS == *CouchPotato* ]] || [[ $APPS == *Sonarr* ]]
+then
 	INDEXERHOST=$(dialog --title "Usenet Indexer" --inputbox "Please enter your Newsnab powered Indexers hostname" 10 50 3>&1 1>&2 2>&3)
 	INDEXERAPI=$(dialog --title "Usenet Indexer" --inputbox "Please enter your Newsnab powered Indexers API key" 10 50 3>&1 1>&2 2>&3)
 	INDEXERNAME=$(dialog --title "Usenet Indexer" --inputbox "Please enter a name for your Newsnab powered Indexer (This can be anything)" 10 50 3>&1 1>&2 2>&3)
