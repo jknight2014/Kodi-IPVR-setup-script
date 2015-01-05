@@ -36,7 +36,7 @@ if [ ! -d "/home/$UNAME" ]; then
 fi
 
 
-APPS=$(dialog --checklist "Choose which apps you would like installed:" 20 50 3 \
+APPS=$(dialog --checklist "Choose which apps you would like installed:" 12 50 4 \
 "KODI" "" on \
 "SABnzbd" "" on \
 "Sonarr" "" on \
@@ -123,12 +123,9 @@ SCRIPT_TITLE="KODI Auto installer v$SCRIPT_VERSION for Ubuntu 14.04"
 
 GFX_CARD=$(lspci |grep VGA |awk -F: {' print $3 '} |awk {'print $1'} |tr [a-z] [A-Z])
 . /etc/lsb-release
-KODI-PPA=$(dialog --radiolist "Choose which Kodi version you would like:" 20 50 3 \
-1 "Official PPA - Install the release version." off \
-2 "Unstable PPA - Install the Alpha/Beta/RC version." on 3>&1 1>&2 2>&3)
-
-
-## ------ START functions ---------
+KODI_PPA=$(dialog --radiolist "Choose which Kodi version you would like:" 20 50 3 \
+1 "Official PPA - Install the release version." on \
+2 "Unstable PPA - Install the Alpha/Beta/RC version." off 3>&1 1>&2 2>&3)
 
 function showInfo()
 {
@@ -319,8 +316,6 @@ function move()
 	fi
 }
 
-------------------------------
-
 function installDependencies()
 {
     echo "-- Installing script dependencies..."
@@ -374,7 +369,7 @@ function addUserToRequiredGroups()
 
 function addXbmcPpa()
 {
-	if [$@ == 2]
+	if [$KODI_PPA == 2]
 	then
         IS_ADDED=$(addRepository "$KODI_PPA_UNSTABLE")
 	else
@@ -1110,16 +1105,29 @@ fi
 if [[ $APPS == *CouchPotato* ]]
 then
 CP=1
+else
+CP=0
 fi
 
 if [[ $APPS == *SABnzbd* ]]
 then
 SAB=1
+else
+SAB=0
 fi
 
 if [[ $APPS == *Sonarr* ]]
 then
 SONARR=1
+else
+SONARR=0
+fi
+
+if [[ $APPS == *KODI* ]]
+then
+KODI=1
+else
+KODI=0
 fi
 
 
@@ -1264,7 +1272,7 @@ done
 	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = '"$UNAME"' WHERE Key = 'chownuser'"
 	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = '"$UNAME"' WHERE Key = 'chowngroup'"
 	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "UPDATE Config SET value = '"$DIR"/Downloads/Complete/TV' WHERE Key = 'downloadedepisodesfolder'"
-	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "INSERT INTO DownloadClients VALUES (NULL,'1','Sabnzbd,'Sabnzbd','{"host": "localhost", "port": 8085, "apiKey": "$API", "username": "$USERNAME", "password": "$PASSWORD", "tvCategory": "tv", "recentTvPriority": 1, "olderTvPriority": -100, "useSsl": false}', 'SabnzbdSettings')"
+	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "INSERT INTO DownloadClients VALUES (NULL,'1','Sabnzbd','Sabnzbd','{"host": "localhost", "port": 8085, "apiKey": "$API", "username": "$USERNAME", "password": "$PASSWORD", "tvCategory": "tv", "recentTvPriority": 1, "olderTvPriority": -100, "useSsl": false}', 'SabnzbdSettings')"
 	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "INSERT INTO Indexers VALUES (NULL,'"$INDEXNAME"','Newznab,'{ "url": "$INDEXHOST", "apiKey": "$INDEXAPI", "categories": [   5030,   5040 ], "animeCategories": []  }','NewznabSettings','1','1')"
 	sqlite3 /home/$UNAME/.config/NzbDrone/nzbdrone.db "INSERT INTO RootFolders VALUES (NULL,'"$DIR"/TVShows')"
 
@@ -1306,7 +1314,8 @@ then
 	git clone git://github.com/RuudBurger/CouchPotatoServer.git /home/$UNAME/IPVR/.couchpotato >/dev/null 2>&1
 
 	dialog --title "COUCHPOTATO" --infobox "Installing upstart configurations" 6 50  
-	sleep 2cat << EOF > /etc/init/couchpotato.conf
+	sleep 2
+cat << EOF > /etc/init/couchpotato.conf
 description "Upstart Script to run couchpotato as a service on Ubuntu/Debian based systems"
 setuid $UNAME >> /etc/init/couchpotato.conf
 setgid $UNAME >> /etc/init/couchpotato.conf
@@ -1925,20 +1934,6 @@ dialog --title "Permissions" --infobox "Fixing Ownership and Permissions." 5 50
 sudo chmod -R 775 /home/$UNAME/IPVR/
 sudo chown -R $UNAME:$UNAME /home/$UNAME/IPVR/
 
-dialog --title "FINISHED" --msgbox "All done.  Your IPVR should start within 10-20 seconds If not you can start it using (sudo start sabnzbd sonarr couchpotato) command.  Then open http://localhost:#PORT in your browser. Replace #PORT with the port of the program you want to access. Couchpotato = 5050 Sonarr = 8989 SABnzbd = 8085. Replace localhost with your server IP for remote systems." 15 78
-
-
-sudo start sabnzbd
-sudo start sonarr
-sudo start couchpotato
-
-if (dialog --title "Knight IPVR" --yesno "Would you like to enable reverse proxies? \ This will allow you to access your programs at http://hostname/script instead of http://IP:PORT/script. It will also allow you to use SSL and access your apps from outside your network by only forwarding one port." 12 78) then
-    echo
-else
-    dialog --title "ABORT" --infobox "All Done then!" 6 50
-	exit 0
-fi
-
 dialog --title "Apache" --infobox "Installing Apache" 6 50
 sudo apt-get -qq install apache2 > /dev/null 2>&1
 
@@ -2000,8 +1995,8 @@ fi
 
 if [[ "$KODI" == "1" ]]
 then 
-clear
 
+clear
 createFile "$LOG_FILE" 0 1
 
 echo ""
@@ -2031,8 +2026,17 @@ InstallLTSEnablementStack
 allowRemoteWakeup
 optimizeInstallation
 cleanUp
-rebootMachine
 fi 
+
 IPADDR=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
 
 dialog --title "FINISHED" --msgbox "Apache rewrite installed. Use https://$IPADDR/sonarr to access sonarr, same for couchpotato and sabnzbd" 5 50
+dialog --title "FINISHED" --msgbox "All done.  Your IPVR should RESTART within 10-20 seconds" 15 78
+
+sudo start sabnzbd
+sudo start sonarr
+sudo start couchpotato
+
+sleep 10
+
+rebootMachine
