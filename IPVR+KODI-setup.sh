@@ -42,28 +42,28 @@ APPS=$(dialog --checklist "Choose which apps you would like installed:" 20 50 3 
 "Sonarr" "" on \
 "CouchPotato" "" on 3>&1 1>&2 2>&3)
 
-if [[ $APPS == *CouchPotato*] || [$APPS == *Sonarr*] || [$APPS == *SABnzbd*]]
-then
-USERNAME=$(dialog --title "Username" --inputbox "Enter the username you want to use to log into your scripts" 10 50 3>&1 1>&2 2>&3)
-PASSWORD=$(dialog --title "Password" --passwordbox "Enter the Password you want to use to log into your scripts" 10 50 3>&1 1>&2 2>&3)
-DIR=$(dialog --title "Storage Directory" --inputbox "Enter the directory where you would like downloads saved. (/home/john would save complete downloads in /home/john/Downloads/Complete" 10 50 /home/$UNAME 3>&1 1>&2 2>&3)
-DIR=${DIR%/}
-API=$(date +%s | sha256sum | base64 | head -c 32 ; sudo echo)
-USENETHOST=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers Hostname" 10 50 3>&1 1>&2 2>&3)
-USENETUSR=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers Username" 10 50 3>&1 1>&2 2>&3)
-USENETPASS=$(dialog --title "Usenet" --insecure --passwordbox "Please enter your Usenet servers Password" 10 50 3>&1 1>&2 2>&3)
-USENETPORT=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers connection Port" 10 50 3>&1 1>&2 2>&3)
-USENETCONN=$(dialog --title "Usenet" --inputbox "Please enter the maximum number of connections your server allowes " 10 50 3>&1 1>&2 2>&3)
-if (dialog --title "Usenet" --yesno "Does your usenet server use SSL?" 8 50) then
-    USENETSSL=1
-else
-    USENETSSL=0
+if [[ $APPS == *SABnzbd* ]]
+	then
+	USERNAME=$(dialog --title "Username" --inputbox "Enter the username you want to use to log into your scripts" 10 50 3>&1 1>&2 2>&3)
+	PASSWORD=$(dialog --title "Password" --passwordbox "Enter the Password you want to use to log into your scripts" 10 50 3>&1 1>&2 2>&3)
+	DIR=$(dialog --title "Storage Directory" --inputbox "Enter the directory where you would like downloads saved. (/home/john would save complete downloads in /home/john/Downloads/Complete" 10 50 /home/$UNAME 3>&1 1>&2 2>&3)
+	DIR=${DIR%/}
+	API=$(date +%s | sha256sum | base64 | head -c 32 ; sudo echo)
+	USENETHOST=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers Hostname" 10 50 3>&1 1>&2 2>&3)
+	USENETUSR=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers Username" 10 50 3>&1 1>&2 2>&3)
+	USENETPASS=$(dialog --title "Usenet" --insecure --passwordbox "Please enter your Usenet servers Password" 10 50 3>&1 1>&2 2>&3)
+	USENETPORT=$(dialog --title "Usenet" --inputbox "Please enter your Usenet servers connection Port" 10 50 3>&1 1>&2 2>&3)
+	USENETCONN=$(dialog --title "Usenet" --inputbox "Please enter the maximum number of connections your server allowes " 10 50 3>&1 1>&2 2>&3)
+	if (dialog --title "Usenet" --yesno "Does your usenet server use SSL?" 8 50) then
+		USENETSSL=1
+	else
+		USENETSSL=0
+	fi
 fi
-
-INDEXERHOST=$(dialog --title "Usenet Indexer" --inputbox "Please enter your Newsnab powered Indexers hostname" 10 50 3>&1 1>&2 2>&3)
-INDEXERAPI=$(dialog --title "Usenet Indexer" --inputbox "Please enter your Newsnab powered Indexers API key" 10 50 3>&1 1>&2 2>&3)
-INDEXERNAME=$(dialog --title "Usenet Indexer" --inputbox "Please enter a name for your Newsnab powered Indexer (This can be anything)" 10 50 3>&1 1>&2 2>&3)
-
+if [[ $APPS == *CouchPotato* ]] || [[ $APPS == *Sonarr* ]]
+	INDEXERHOST=$(dialog --title "Usenet Indexer" --inputbox "Please enter your Newsnab powered Indexers hostname" 10 50 3>&1 1>&2 2>&3)
+	INDEXERAPI=$(dialog --title "Usenet Indexer" --inputbox "Please enter your Newsnab powered Indexers API key" 10 50 3>&1 1>&2 2>&3)
+	INDEXERNAME=$(dialog --title "Usenet Indexer" --inputbox "Please enter a name for your Newsnab powered Indexer (This can be anything)" 10 50 3>&1 1>&2 2>&3)
 fi
 if [[ $APPS == *KODI* ]]
 then
@@ -367,7 +367,7 @@ function addUserToRequiredGroups()
 	sudo adduser $KODI_USER fuse  >> kodi_installation.log
 	sudo adduser $KODI_USER cdrom  >> kodi_installation.log
 	sudo adduser $KODI_USER plugdev  >> kodi_installation.log
-        sudo adduser $KODI_USER dialout  >> kodi_installation.log
+    sudo adduser $KODI_USER dialout  >> kodi_installation.log
 	showInfo "KODI user added to required groups"
 }
 
