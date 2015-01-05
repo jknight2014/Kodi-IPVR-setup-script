@@ -1991,7 +1991,6 @@ LogLevel warn
 </VirtualHost>
 EOF
 sudo service apache2 restart 
-fi
 
 if [[ "$KODI" == "1" ]]
 then 
