@@ -109,7 +109,7 @@ AUTO_MOUNT_RULES_FILE="/etc/udev/rules.d/media-by-label-auto-mount.rules"
 SYSCTL_CONF_FILE="/etc/sysctl.conf"
 RSYSLOG_FILE="/etc/init/rsyslog.conf"
 POWERMANAGEMENT_DIR="/etc/polkit-1/localauthority/50-local.d/"
-DOWNLOAD_URL="https://github.com/jknight2014/Kodi-IPVR-setup-script/blob/raw/Master/Downloads/"
+DOWNLOAD_URL="https://github.com/jknight2014/Kodi-IPVR-setup-script/blob/raw/Testing/Downloads/"
 KODI_PPA="ppa:team-xbmc/ppa"
 KODI_PPA_UNSTABLE="ppa:team-xbmc/unstable"
 HTS_TVHEADEND_PPA="ppa:jabbors/hts-stable"
@@ -369,7 +369,7 @@ function addUserToRequiredGroups()
 
 function addXbmcPpa()
 {
-	if [$KODI_PPA == 2]
+	if [ $KODI_PPA == 2 ]
 	then
         IS_ADDED=$(addRepository "$KODI_PPA_UNSTABLE")
 	else
@@ -2001,7 +2001,6 @@ createFile "$LOG_FILE" 0 1
 echo ""
 installDependencies
 echo "Loading installer..."
-showDialog "Welcome to the KODI minimal installation script. Some parts may take a while to install depending on your internet connection speed.\n\nPlease be patient..."
 trap control_c SIGINT
 
 fixLocaleBug
